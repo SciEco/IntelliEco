@@ -1,0 +1,4 @@
+﻿  MothCount.cpp
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\mothcount.cpp(35): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\MothCount.exe
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\MothCount.pdb (Full PDB)

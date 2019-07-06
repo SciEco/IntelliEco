@@ -1,0 +1,10 @@
+﻿  MothCount.cpp
+MothCount.cpp(35): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+MothCount.cpp(110): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  正在生成代码
+  1 of 370 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount.exe
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount.pdb (Full PDB)
