@@ -14,14 +14,76 @@ using namespace cv;
 using namespace std;
 
 //Define global variables
-Mat SourceImg;
-Mat LineImg;
-Mat dst;
+Mat SourceImg, LineImg, dstLineImg;
+Mat& _SourceImg = SourceImg;
+Mat& _LineImg = LineImg;
+Mat& _dstLineImg = dstLineImg;
 Mat DetectedEdges;
 
-int lowThreshold = 0;
 const char* window_name = "Edge Map";
 
+void FindBiggest(Mat& src, Mat& dst)
+{
+    Mat dst_middle;
+    
+//Edge detection using Canny:
+    Canny( src, dst_middle, 100,150 );
+    //Show it
+    imshow( window_name, dst_middle );
+    waitKey(0);
+    destroyWindow(window_name);
+    
+//Get the edge of the "white" board:
+    vector<vector<Point>> contours;    //Claim the container (2 lines)
+    vector<Vec4i> hierarchy;
+    
+    findContours(dst_middle, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);    //Get the edges
+    //cout << contours.size();
+    
+//Find the biggest area then output it into dst:
+    vector<vector<Point>> polyContours(contours.size());
+    int maxArea = 0;
+    for (int index = 0; index < contours.size(); index++){
+        if (contourArea(contours[index]) > contourArea(contours[maxArea]))
+            maxArea = index;
+        approxPolyDP(contours[index], polyContours[index], 10, true);
+    }
+    
+    dst = Mat::zeros(SourceImg.size(), CV_8UC3);
+    drawContours(dst, polyContours, maxArea, Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
+    
+    /*
+    namedWindow("Window1");
+    imshow("Window1", dst);
+    waitKey();
+    destroyWindow("Window1");
+    */
+    
+}
+
+void DetectLines(Mat& srcdst)
+{
+//To Detect lines:
+    vector<Vec2f> lines; // will hold the results of the detection
+    HoughLines(srcdst, lines, 1, CV_PI/180, 150,0 ,0); // runs the actual detection
+    //dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
+    
+//To store lines:
+    //dst1.create( src1.size(), src1.type() ); //Seemed useless...But it proofed its value.
+    
+    for( size_t i = 0; i < lines.size(); i++ )
+    {
+        float rho = lines[i][0], theta = lines[i][1];
+        Point pt1, pt2;
+        double a = cos(theta), b = sin(theta);
+        double x0 = a*rho, y0 = b*rho;
+        pt1.x = cvRound(x0 + 2000*(-b));
+        pt1.y = cvRound(y0 + 2000*(a));
+        pt2.x = cvRound(x0 - 2000*(-b));
+        pt2.y = cvRound(y0 - 2000*(a));
+        line( srcdst, pt1, pt2, Scalar(255,0,0), 3, LINE_8,0);
+    }
+}
 
 int main(void)
 {
@@ -33,75 +95,35 @@ int main(void)
         return -1;
     }
     cvtColor(SourceImg, SourceImg, CV_BGR2GRAY);
-//Initialize the destination image:
-    //blur( SourceImg,SourceImg, Size(8,8) );
+    namedWindow("Source");
+    imshow("Source", SourceImg);
+    waitKey();
+    destroyWindow("Source");
     
-//Edge detection using Canny:
-    Canny( SourceImg, DetectedEdges, 100,150 );
-    imshow( window_name, DetectedEdges );
-    waitKey(0);
-    destroyWindow(window_name);
+    FindBiggest(_SourceImg, _LineImg);
     
-//Get the edge of the *white* board:
-    vector<vector<Point>> contours;    //Claim the container (2 lines)
-    vector<Vec4i> hierarchy;
-    
-    findContours(DetectedEdges, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);    //Get the edges
-    //cout << contours.size();
-    
-//Find the biggest area:
-    vector<vector<Point>> polyContours(contours.size());
-    int maxArea = 0;
-    for (int index = 0; index < contours.size(); index++){
-        if (contourArea(contours[index]) > contourArea(contours[maxArea]))
-            maxArea = index;
-        approxPolyDP(contours[index], polyContours[index], 10, true);
-    }
-    
-    Mat polyPic = Mat::zeros(SourceImg.size(), CV_8UC3);
-    drawContours(polyPic, polyContours, maxArea, Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
-
-    //IMPORTANT!! Must convert Polypic to GRAYSCALE to draw lines by using Houghlines
+    //IMPORTANT!! Must convert Polypic to GRAYSCALE to (draw lines by using Houghlines)
     //Costs me much time to DE this BUG
-    cvtColor(polyPic, polyPic, CV_BGR2GRAY);
+    cvtColor(LineImg, LineImg, CV_BGR2GRAY);
     
-    /*
-    namedWindow("TST3");
-    imshow("TST3",polyPic);
-    waitKey();      //PolyPic is the Contour
-     */
-
-//To Detect lines:
-    vector<Vec2f> lines; // will hold the results of the detection
-    HoughLines(polyPic, lines,1, CV_PI/180, 200,3,0); // runs the actual detection
-    //Polypic: Source image; lines: container of line's parameter(rho,theta); CV/PI/180: precision of theta(rad); 150: precision of rho.
+    DetectLines(_LineImg);
+    //DetectLines(_LineImg, _LineImg);
     
-//To store lines:
-    LineImg.create( SourceImg.size(), SourceImg.type() ); //Seemed useless...But it proofed its value.
-    for( size_t i = 0; i < lines.size(); i++ )
-    {
-        float rho = lines[i][0], theta = lines[i][1];
-        Point pt1, pt2;
-        double a = cos(theta), b = sin(theta);
-        double x0 = a*rho, y0 = b*rho;
-        pt1.x = cvRound(x0 + 1000*(-b));
-        pt1.y = cvRound(y0 + 1000*(a));
-        pt2.x = cvRound(x0 - 1000*(-b));
-        pt2.y = cvRound(y0 - 1000*(a));
-        line( LineImg, pt1, pt2, Scalar(255,1,1), 3, LINE_AA);
-    }
-
-    //cvtColor(LineImg, LineImg, CV_BGR2GRAY);
-    addWeighted(LineImg, 0.5, SourceImg, 0.5, 0.7, dst);
+    FindBiggest(_LineImg,dstLineImg);
+    
+    
+    
+    cvtColor(dstLineImg, dstLineImg, CV_BGR2GRAY);
+    
+    addWeighted(_dstLineImg, 0.5, _SourceImg, 0.5, 0.7, _dstLineImg);
+    
     
     namedWindow("Source");
-    imshow("Source", dst);
+    imshow("Source", _dstLineImg);
     waitKey();
+    destroyWindow("Source");
     
-    /*addWeighted(polyPic, 0.5, srcf y, 0.5, 3, det);
-    namedWindow("TST4");
-    imshow ("TST4",det);
-    waitKey();
-     */
+    
     return 0;
 }
+
