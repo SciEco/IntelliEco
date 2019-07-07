@@ -22,16 +22,26 @@ Mat DetectedEdges;
 
 const char* window_name = "Edge Map";
 
+namespace wil {
+    void showImage(const string winname, Mat InImage)
+    {
+        namedWindow(winname);
+        imshow(winname, InImage);
+        waitKey();
+        destroyWindow(winname);
+    }
+}
+
 void FindBiggest(Mat& src, Mat& dst)
 {
     Mat dst_middle;
-    
+
 //Edge detection using Canny:
     Canny( src, dst_middle, 100,150 );
     //Show it
-    imshow( window_name, dst_middle );
+    /*imshow( window_name, dst_middle );
     waitKey(0);
-    destroyWindow(window_name);
+    destroyWindow(window_name);*/
     
 //Get the edge of the "white" board:
     vector<vector<Point>> contours;    //Claim the container (2 lines)
@@ -61,11 +71,11 @@ void FindBiggest(Mat& src, Mat& dst)
     
 }
 
-void DetectLines(Mat& srcdst)
+void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
 {
 //To Detect lines:
     vector<Vec2f> lines; // will hold the results of the detection
-    HoughLines(srcdst, lines, 1, CV_PI/180, 150,0 ,0); // runs the actual detection
+    HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); // runs the actual detection
     //dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
     
 //To store lines:
@@ -81,7 +91,7 @@ void DetectLines(Mat& srcdst)
         pt1.y = cvRound(y0 + 2000*(a));
         pt2.x = cvRound(x0 - 2000*(-b));
         pt2.y = cvRound(y0 - 2000*(a));
-        line( srcdst, pt1, pt2, Scalar(255,0,0), 3, LINE_8,0);
+        line( DstImage, pt1, pt2, 255, 1, LINE_8,0);
     }
 }
 
@@ -95,10 +105,8 @@ int main(void)
         return -1;
     }
     cvtColor(SourceImg, SourceImg, CV_BGR2GRAY);
-    namedWindow("Source");
-    imshow("Source", SourceImg);
-    waitKey();
-    destroyWindow("Source");
+    inRange(SourceImg, 255, 255, dstLineImg);
+    
     
     FindBiggest(_SourceImg, _LineImg);
     
@@ -106,24 +114,19 @@ int main(void)
     //Costs me much time to DE this BUG
     cvtColor(LineImg, LineImg, CV_BGR2GRAY);
     
-    DetectLines(_LineImg);
+    DetectAndDrawLines(_LineImg, SourceImg);
+    
+    wil::showImage("TST1", SourceImg);
+    
     //DetectLines(_LineImg, _LineImg);
     
-    FindBiggest(_LineImg,dstLineImg);
-    
-    
+    /*FindBiggest(_LineImg,dstLineImg);
     
     cvtColor(dstLineImg, dstLineImg, CV_BGR2GRAY);
     
-    addWeighted(_dstLineImg, 0.5, _SourceImg, 0.5, 0.7, _dstLineImg);
+    addWeighted(_dstLineImg, 0.5, _SourceImg, 0.5, 2.0, _dstLineImg);
     
-    
-    namedWindow("Source");
-    imshow("Source", _dstLineImg);
-    waitKey();
-    destroyWindow("Source");
-    
+    inRange(dstLineImg, 130,200, dstLineImg);*/
     
     return 0;
 }
-
