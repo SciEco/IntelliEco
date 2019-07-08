@@ -103,7 +103,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
     }
 }
 
-int main(void)
+int DrawContour()
 {
 //Load an image:
     SourceImg = imread( "/Users/william/6.jpeg" );
