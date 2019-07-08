@@ -10,6 +10,8 @@
 #include "opencv2/highgui.hpp"
 #include <iostream>
 #include <vector>
+#include <cmath>
+
 using namespace cv;
 using namespace std;
 
@@ -20,20 +22,21 @@ Mat& _LineImg = LineImg;
 Mat& _dstLineImg = dstLineImg;
 Mat DetectedEdges;
 
-const char* window_name = "Edge Map";
-
-namespace wil {
-    void showImage(const string winname, Mat InImage)
-    {
-        namedWindow(winname);
-        imshow(winname, InImage);
-        waitKey();
-        destroyWindow(winname);
-    }
+void testImage(const string WindowName, Mat TestingImage, bool DestroyOrNot)
+{
+//Show an image on window "winname", then destroy the window when pressing a key.
+    namedWindow(WindowName); //Create an window
+    imshow(WindowName, TestingImage); //Show the image on the window
+    waitKey(); //Waiting for pressing a key
+    
+    if (DestroyOrNot)
+        destroyWindow(WindowName); //Destroy the window
 }
 
 void FindBiggest(Mat& src, Mat& dst)
 {
+
+    
     Mat dst_middle;
 
 //Edge detection using Canny:
@@ -80,10 +83,23 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
     
 //To store lines:
     //dst1.create( src1.size(), src1.type() ); //Seemed useless...But it proofed its value.
-    
+
+//To draw lines:
+    float memrho = lines[0][0], memtheta = lines[0][1];
+    const double THRESHOLD_RHO = 100, THRESHOLD_THETA = 10 * CV_PI/180;
     for( size_t i = 0; i < lines.size(); i++ )
     {
+//MARK 1 HERE 2019-07-08
+    //See if the line is "too close". If so, not to draw it. If not, draw it.
         float rho = lines[i][0], theta = lines[i][1];
+        if (abs(memrho - rho)<THRESHOLD_RHO && abs(memtheta - theta)<THRESHOLD_THETA)
+            continue;
+        else
+        {
+            memrho = rho;
+            memtheta = theta;
+        }
+        //END MARK 1
         Point pt1, pt2;
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
@@ -116,7 +132,7 @@ int main(void)
     
     DetectAndDrawLines(_LineImg, SourceImg);
     
-    wil::showImage("TST1", SourceImg);
+    testImage("TST1", SourceImg, true);
     
     //DetectLines(_LineImg, _LineImg);
     

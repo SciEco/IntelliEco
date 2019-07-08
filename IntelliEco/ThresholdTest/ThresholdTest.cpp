@@ -1,7 +1,10 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 #include <iostream>
+
+using namespace std;
 using namespace cv;
+
 const int max_value_H = 360 / 2;
 const int max_value = 255;
 const String window_capture_name = "Video Capture";
@@ -71,7 +74,7 @@ int main(int argc, char* argv[])
 	createTrackbar("Low V", window_detection_name, &low_V, max_value, on_low_V_thresh_trackbar);
 	createTrackbar("High V", window_detection_name, &high_V, max_value, on_high_V_thresh_trackbar);
 	
-	frame = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth8.jpg)", IMREAD_COLOR); // Read the file
+	frame = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth5.jpg)", IMREAD_COLOR); // Read the file
 
 	pyrDown(frame, frame, Size(frame.cols / 2, frame.rows / 2));
 	pyrDown(frame, frame, Size(frame.cols / 2, frame.rows / 2));
@@ -80,6 +83,29 @@ int main(int argc, char* argv[])
 	cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
 	// Detect the object based on HSV Range Values
 	// Show the frames
+
+	int hSum = 0, hSum1 = 0, sSum = 0, sSum1 = 0, vSum = 0, vSum1 = 0;
+	int col = frame_HSV.cols, row = frame_HSV.rows;
+	int areaSum = col * row, area1 = 0;
+	auto get = [](int x, int y) {return frame_HSV.at<uchar>(y, x); };
+	for (int i = 0; i < col * 3; i += 3) for (int j = 0; j < row; j++)
+	{
+		// if (j == 0) cout << (int)get(i, j) << ' ' << (int)get(i + 1, j) << ' ' << (int)get(i + 2, j) << '\n';
+		
+		if (get(i, j) >= 20 && get(i, j) <= 50)
+		{
+			area1++;
+			hSum1 += get(i, j);
+			sSum1 += get(i + 1, j);
+			vSum1 += get(i + 2, j);
+		}
+
+		hSum += get(i, j);
+		sSum += get(i + 1, j);
+		vSum += get(i + 2, j);
+	}
+	cout << hSum / areaSum << ' ' << sSum / areaSum << ' ' << vSum / areaSum << '\n';
+	cout << hSum1 / area1 << ' ' << sSum1 / area1 << ' ' << vSum1 / area1 << '\n';
 	
 	waitKey();
 

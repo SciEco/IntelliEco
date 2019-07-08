@@ -1,0 +1,4 @@
+﻿  BranchCutter.cpp
+c:\users\haora\documents\visual studio 2015\projects\intellieco\branchcutter\branchcutter.cpp(59): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+  BranchCutter.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\BranchCutter.exe
+  BranchCutter.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\BranchCutter.pdb (Full PDB)
