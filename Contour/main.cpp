@@ -27,7 +27,7 @@ Mat& _LineImg = LineImg;
 
 void testImage(const string WindowName, Mat TestingImage, bool DestroyOrNot = true)
 {
-    //Show an image on window "winname", then destroy the window when pressing a key.
+//Show an image on window "winname", then destroy the window when pressing a key.
     namedWindow(WindowName); //Create an window
     imshow(WindowName, TestingImage); //Show the image on the window
     waitKey(); //Waiting for pressing a key
@@ -40,10 +40,10 @@ void FindBiggest(Mat& src, Mat& dst)
 {
     Mat dst_middle;
     
-    //Edge detection using Canny:
+//Edge detection using Canny:
     Canny( src, dst_middle, 100,150 );
     
-    //Get the edge of the "white" board:
+//Get the edge of the "white" board:
     vector<vector<Point> > contours;    //Claim the container (2 lines)
     vector<Vec4i> hierarchy;
     
@@ -64,13 +64,13 @@ void FindBiggest(Mat& src, Mat& dst)
 
 void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
 {
-    //To Detect lines:
+//To Detect lines:
     vector<Vec2f> lines; // will hold the results of the 1st-time detection
     vector<Vec2f> final_lines; // will hold the results of the detection
     HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); // runs the actual detection
     //dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
     
-    //To draw lines:
+//To draw lines:
     
     /*
      //Collaberate with "line too close" section, definition job.
@@ -81,16 +81,13 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
     int upCount=0, downCount=0, leftCount=0, rightCount=0;
     
     vector<vector<Vec2f> > GiveOut(4);
-    vector<Vec2f> upGO(3);      upGO = GiveOut[0];
-    vector<Vec2f> downGO(3);    downGO = GiveOut[1];
-    vector<Vec2f> leftGO(3);    leftGO = GiveOut[2];
-    vector<Vec2f> rightGO(3);   rightGO = GiveOut[3];
+    vector<Vec2f> upGO(LinePerEdge), downGO(LinePerEdge), leftGO(LinePerEdge), rightGO(LinePerEdge);
     
-    //Go through all the lines
+//Go through all the lines
     for( size_t i = 0; i < lines.size(); i++ )
     {
         float rho = lines[i][0], theta = lines[i][1];
-        //MARK 1 HERE 2019-07-08
+    //MARK 1 HERE 2019-07-08
         /*
          //See if the line is "too close". If so, omit it. If not, remember it.
          if (abs(memrho - rho)<THRESHOLD_RHO || abs(memtheta - theta)<THRESHOLD_THETA)
@@ -102,7 +99,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
          }
          */
         
-        //"const int LinePerEdge" lines each edge:
+    //"const int LinePerEdge" lines each edge:
         if (rho < 0)
         {
             if (rightCount >= LinePerEdge)
@@ -152,7 +149,14 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
             }
             
         }
-        //END MARK 1
+        
+    //Store operation
+        GiveOut[0] = upGO;
+        GiveOut[1] = downGO;
+        GiveOut[2] = leftGO;
+        GiveOut[3] = rightGO;
+        
+//END MARK 1
         Point pt1, pt2;
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
@@ -164,11 +168,12 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
         //cout << rho << " " << theta << endl; //Find some GUIlv
         line( DstImage, pt1, pt2, 255, 1, LINE_8,0);
     }
+    cout << GiveOut[0][0][0];
 }
 
 int main()
 {
-    //Load an image:
+//Load an image:
     SourceImg = imread("/Users/william/6.jpeg");
     if( SourceImg.empty() )
     {
