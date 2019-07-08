@@ -87,7 +87,7 @@ bool operator<(const Block & a, const Block & b)
 int main(int argc, char ** argv)
 {
 	Mat image;
-	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth8.jpg)", IMREAD_COLOR); // Read the file
+	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth1.jpg)", IMREAD_COLOR); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
 		cout << "Could not open or find the image" << std::endl;
@@ -99,10 +99,16 @@ int main(int argc, char ** argv)
 
 	auto show = [&image]()
 	{
-		return;
 		imshow("Display window", image); // Show our image inside it.
 		waitKey(0); // Wait for a keystroke in the window
 	};
+
+	// If oriented potrait, then transpose it landscape
+	if (image.cols < image.rows)
+	{
+		transpose(image, image);
+		flip(image, image, 1);
+	}
 
 	// Compress
 	while (image.cols >= 2000)
@@ -114,13 +120,6 @@ int main(int argc, char ** argv)
 	int col = image.cols, row = image.rows;
 	int areaSum = col * row;
 	auto get = [&image](int x, int y) {return image.at<uchar>(y, x); };
-
-	// If oriented potrait, then transpose it landscape
-	if (col < row)
-	{
-		transpose(image, image);
-		swap(col, row);
-	}
 
 	// Convert to HSV colourspace
 	cvtColor(image, image, COLOR_BGR2HSV);
@@ -213,11 +212,11 @@ int main(int argc, char ** argv)
 	blocks.sort();
 	for (Block & block : blocks) cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
 
-	// Erase all tiny blocks and small long white blocks
+	// Erase all tiny blocks and small white blocks
 	for (Block & block : blocks)
 	{
 		if ((block.area() <= 250)
-			|| (block.area() <= 7000 && block.getAPR2() <= 50 && block.white))
+			|| (block.area() <= 7000 && block.white))
 		{
 			block.erase(image);
 		}
