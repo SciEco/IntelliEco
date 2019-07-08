@@ -84,10 +84,10 @@ bool operator<(const Block & a, const Block & b)
 	return a.area() < b.area();
 }
 
-int main()
+int main(int argc, char ** argv)
 {
-	Mat image, imageHSV, imageThreshold, imageErode;
-	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth4.jpg)", IMREAD_COLOR); // Read the file
+	Mat image;
+	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth8.jpg)", IMREAD_COLOR); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
 		cout << "Could not open or find the image" << std::endl;
@@ -95,6 +95,14 @@ int main()
 		cin.get();
 		return -1;
 	}
+	namedWindow("Display window", WINDOW_AUTOSIZE); // Create a window for display.
+
+	auto show = [&image]()
+	{
+		return;
+		imshow("Display window", image); // Show our image inside it.
+		waitKey(0); // Wait for a keystroke in the window
+	};
 
 	// Compress
 	while (image.cols >= 2000)
@@ -105,7 +113,7 @@ int main()
 	// Calculate basic params
 	int col = image.cols, row = image.rows;
 	int areaSum = col * row;
-	auto get = [&imageErode](int x, int y) {return imageErode.at<uchar>(y, x); };
+	auto get = [&image](int x, int y) {return image.at<uchar>(y, x); };
 
 	// If oriented potrait, then transpose it landscape
 	if (col < row)
@@ -115,32 +123,32 @@ int main()
 	}
 
 	// Convert to HSV colourspace
-	cvtColor(image, imageHSV, COLOR_BGR2HSV);
+	cvtColor(image, image, COLOR_BGR2HSV);
 
 	// Threshold
 	int hSum1 = 0, sSum1 = 0, vSum1 = 0;
 	int area1 = 0;
-	auto get1 = [&imageHSV](int x, int y) {return imageHSV.at<uchar>(y, x); };
 	for (int i = 0; i < col * 3; i += 3) for (int j = 0; j < row; j++)
 	{
-		if (get1(i, j) >= 20 && get1(i, j) <= 50)
+		if (get(i, j) >= 20 && get(i, j) <= 50)
 		{
 			area1++;
-			hSum1 += get1(i, j);
-			sSum1 += get1(i + 1, j);
-			vSum1 += get1(i + 2, j);
+			hSum1 += get(i, j);
+			sSum1 += get(i + 1, j);
+			vSum1 += get(i + 2, j);
 		}
 	}
 	int hMean = hSum1 / area1;
-	inRange(imageHSV, Scalar(hMean - 5, 19, 70), Scalar(hMean + 10, 255, 255), imageThreshold);
+	inRange(image, Scalar(hMean - 5, 19, 70), Scalar(hMean + 10, 255, 255), image);
 
-	// Block search 1
-	auto get2 = [&imageThreshold](int x, int y) {return imageThreshold.at<uchar>(y, x); };
-	auto bfs = [get2, col, row](int x, int y)
+	show();
+
+	// BFS algorithm
+	auto bfs = [get, col, row](int x, int y)
 	{
 		if (Counted[x][y]) return Block();
 		Block block;
-		block.white = (get2(x, y) == 255 ? true : false);
+		block.white = (get(x, y) == 255 ? true : false);
 		queue<Point> q;
 		q.emplace(x, y);
 		while (!q.empty())
@@ -150,26 +158,76 @@ int main()
 			if (Counted[p.x][p.y]) continue;
 			Counted[p.x][p.y] = true;
 			block.add(p);
-			if (p.x - 1 >= 0) if (get2(p.x - 1, p.y) == get2(x, y)) q.emplace(p.x - 1, p.y);
-			if (p.x + 1 < col) if (get2(p.x + 1, p.y) == get2(x, y)) q.emplace(p.x + 1, p.y);
-			if (p.y - 1 >= 0) if (get2(p.x, p.y - 1) == get2(x, y)) q.emplace(p.x, p.y - 1);
-			if (p.y + 1 < row) if (get2(p.x, p.y + 1) == get2(x, y)) q.emplace(p.x, p.y + 1);
+			if (p.x - 1 >= 0) if (get(p.x - 1, p.y) == get(x, y)) q.emplace(p.x - 1, p.y);
+			if (p.x + 1 < col) if (get(p.x + 1, p.y) == get(x, y)) q.emplace(p.x + 1, p.y);
+			if (p.y - 1 >= 0) if (get(p.x, p.y - 1) == get(x, y)) q.emplace(p.x, p.y - 1);
+			if (p.y + 1 < row) if (get(p.x, p.y + 1) == get(x, y)) q.emplace(p.x, p.y + 1);
 		}
 		return block;
 	};
 
+	// Block search lambda
 	list<Block> blocks;
-	for (int i = 0; i < col; i++) for (int j = 0; j < row; j++)
+	auto blockSearch = [&blocks, bfs, &col, &row]()
 	{
-		Block block = bfs(i, j);
-		if (block.area() != 0) blocks.emplace_back(block);
+		blocks.clear();
+		memset(Counted, 0, sizeof(Counted));
+		for (int i = 0; i < col; i++) for (int j = 0; j < row; j++)
+		{
+			Block block = bfs(i, j);
+			if (block.area() != 0) blocks.emplace_back(block);
+		}
+	};
+
+	// Block search 1
+	blockSearch();
+
+	// Dilate
+	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
+	dilate(image, image, element);
+
+	show();
+
+	// Erase all tiny blocks and small long black blocks
+	for (Block & block : blocks)
+	{
+		if ((block.area() <= 250)
+			|| (block.area() <= 7000 && block.getAPR2() <= 50 && !block.white))
+		{
+			block.erase(image);
+		}
 	}
 
-	blocks.sort();
+	show();
 
-	// Optput block info
+	// Erode
+	element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(3, 3));
+	erode(image, image, element);
+
+	show();
+
+	// Block search 2
+	blockSearch();
+
+	// Print block info
+	blocks.sort();
 	for (Block & block : blocks) cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
-	
+
+	// Erase all tiny blocks and small long white blocks
+	for (Block & block : blocks)
+	{
+		if ((block.area() <= 250)
+			|| (block.area() <= 7000 && block.getAPR2() <= 50 && block.white))
+		{
+			block.erase(image);
+		}
+	}
+
+	show();
+
+	// Block search 3
+	blockSearch();
+
 	// Calculate boardArea
 	int boardArea = 0;
 	for (Block & block : blocks)
@@ -177,48 +235,23 @@ int main()
 		if ((block.area() < 7000 && !block.white) || (block.area() >= 7000 && block.white)) boardArea += block.area();
 	} // TODO: replace 7000 with another variable depending on areaSum
 
-	// Calculate singleMothArea
-	int singleMothArea = boardArea * 1.50e-3;
+	  // Calculate singleMothArea
+	int singleMothArea = boardArea * 2.30e-3;
 	int minMothArea = singleMothArea / 2;
-
-	// Erase bad blocks and the black frame
-	for (Block & block : blocks)
-	{
-		if ((block.area() <= minMothArea && !block.white)
-			|| (block.area() <= 7000 && block.getAPR2() <= 100 && !block.white)
-			|| (block.area() >= 7000 && !block.white))
-		{
-			block.erase(imageThreshold);
-		}
-	}
-
-	// Dilate
-	//Mat element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(2, 2));
-	//dilate(imageThreshold, imageErode, element);
-
-	// Block search 2
-	blocks.clear();
-	memset(Counted, 0, sizeof(Counted));
-	for (int i = 0; i < col; i++) for (int j = 0; j < row; j++)
-	{
-		Block block = bfs(i, j);
-		if (block.area() != 0) blocks.emplace_back(block);
-	}
 
 
 	// 632.61 per moth with board area being 427280
 	// moth/board = 1.60e-3
 	// cout << mothArea / 65.0 << ' ' << boardArea << '\n';
 	int mothArea = 0;
-	for (Block & block : blocks) if (!block.white) mothArea += block.area();
+	for (Block & block : blocks) if (!block.white && block.area() < 7000) mothArea += block.area();
 
 	cout << "board area: " << boardArea << '\n';
 	cout << "single moth area: " << singleMothArea << '\n';
 	cout << "total moth area: " << mothArea << '\n';
 	cout << mothArea / singleMothArea << " moth(s) counted. ";
 
-	namedWindow("Display window", WINDOW_AUTOSIZE); // Create a window for display.
-	imshow("Display window", imageThreshold); // Show our image inside it.
+	imshow("Display window", image); // Show our image inside it.
 	waitKey(0); // Wait for a keystroke in the window
 	return 0;
 }
