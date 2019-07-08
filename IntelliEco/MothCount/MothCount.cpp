@@ -87,7 +87,7 @@ bool operator<(const Block & a, const Block & b)
 int main(int argc, char ** argv)
 {
 	Mat image;
-	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth1.jpg)", IMREAD_COLOR); // Read the file
+	image = imread(R"(C:\Users\haora\Documents\visual studio 2015\Projects\IntelliEco\moth\moth8.jpg)", IMREAD_COLOR); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
 		cout << "Could not open or find the image" << std::endl;
@@ -178,14 +178,14 @@ int main(int argc, char ** argv)
 		}
 	};
 
-	// Block search 1
-	blockSearch();
-
 	// Dilate
 	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
 	dilate(image, image, element);
 
 	show();
+
+	// Block search 1
+	blockSearch();
 
 	// Erase all tiny blocks and small long black blocks
 	for (Block & block : blocks)
@@ -234,7 +234,7 @@ int main(int argc, char ** argv)
 		if ((block.area() < 7000 && !block.white) || (block.area() >= 7000 && block.white)) boardArea += block.area();
 	} // TODO: replace 7000 with another variable depending on areaSum
 
-	  // Calculate singleMothArea
+	// Calculate singleMothArea
 	int singleMothArea = boardArea * 2.30e-3;
 	int minMothArea = singleMothArea / 2;
 
