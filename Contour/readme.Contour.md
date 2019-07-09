@@ -4,6 +4,12 @@ DrawContour.hpp
 This cpp header is meant to provide a function which draw the contour lines of a white board using openCV2.
 
 ACKNOWLEDGEMENTS
+Providing the computer vision library and tutorials:
+    https://opencv.org
+    https://github.com/opencv/opencv
+Providing the thought of the core functionality of function "FindBiggest"
+    "才才才" on
+    https://segmentfault.com/a/1190000013925648?utm_source=tag-newest
 
 NOTE : Jump to statements of "vector<vector<Vec2f> > GetCountour(Mat& InputImage)" if you want to get a quick start.
 

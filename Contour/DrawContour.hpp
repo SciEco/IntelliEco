@@ -5,9 +5,6 @@
 //  Created by william on 2019/7/6.
 //  Copyright © 2019 W-Hsu. All rights reserved.
 //
-/*----------------------------------------------*/
-//WARNING : USED GLOBAL VARIABLE NAMES (On line 22) :
-//SourceImg, LineImg, _SourceImg, _LineImg.
 
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
