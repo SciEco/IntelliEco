@@ -153,6 +153,8 @@ vector<vector<Vec2f> > DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
         i_GiveOut[3] = rightGO;
         
         //END MARK 1
+        //Draw the lines
+        
         Point pt1, pt2;
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
@@ -163,6 +165,7 @@ vector<vector<Vec2f> > DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
         pt2.y = cvRound(y0 - 2000*(a));
         //cout << rho << " " << theta << endl; //Find some GUIlv
         line( DstImage, pt1, pt2, 255, 1, LINE_8,0);
+        //END Draw the lines
     }
     
     return i_GiveOut;
