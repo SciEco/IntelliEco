@@ -18,7 +18,7 @@
 using namespace cv;
 using namespace std;
 
-const int LinePerEdge = 3;
+const int LinePerEdge = 2;
 
 //Not defining global variables
 
@@ -46,7 +46,7 @@ void FindBiggest(Mat& src, Mat& dst) //dst stores the countour lines
     Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
     dilate(dst_middle, dst_middle, element);
     
-    testImage("dst_middle", dst_middle);
+    //testImage("dst_middle", dst_middle);
     
     //Get the edge of the "white" board:
     vector<vector<Point> > contours; //Claim the container (2 lines)
@@ -71,10 +71,10 @@ void FindBiggest(Mat& src, Mat& dst) //dst stores the countour lines
     dst = Mat::zeros(src.size(), CV_8UC3);
     drawContours(dst, polyContours, maxArea, Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
     
-    testImage("Test0", dst);
+    //testImage("Test0", dst);
 }
 
-vector<vector<Vec2f> > DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
+void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
 {
     //To Detect lines:
     vector<Vec2f> lines; // will hold the results of the 1st-time detection
@@ -172,18 +172,48 @@ vector<vector<Vec2f> > DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
         
-        pt1.x = cvRound(x0 + 2000*(-b));
-        pt1.y = cvRound(y0 + 2000*(a));
-        pt2.x = cvRound(x0 - 2000*(-b));
-        pt2.y = cvRound(y0 - 2000*(a));
+    
+        if (rho < 0)
+        {
+            pt1.x = cvRound(x0 - 100*(-b));
+            pt1.y = cvRound(y0 - 100*(a));
+            pt2.x = cvRound(x0 - 800*(-b));
+            pt2.y = cvRound(y0 - 800*(a));
+            
+        }
+        else if (rho >= 500)
+        {
+            pt1.x = cvRound(x0 - 70*(-b));
+            pt1.y = cvRound(y0 - 70*(a));
+            pt2.x = cvRound(x0 - 1100*(-b));
+            pt2.y = cvRound(y0 - 1100*(a));
+        }
+        else
+        {
+            if (theta >= 0.70)
+            {
+                pt1.x = cvRound(x0 + 10*(-b));
+                pt1.y = cvRound(y0 + 10*(a));
+                pt2.x = cvRound(x0 - 950*(-b));
+                pt2.y = cvRound(y0 - 950*(a));
+            }
+            else
+            {
+                pt1.x = cvRound(x0 + 700*(-b));
+                pt1.y = cvRound(y0 + 700*(a));
+                pt2.x = cvRound(x0 - 10*(-b));
+                pt2.y = cvRound(y0 - 10*(a));
+            }
+            
+        }
         //cout << rho << " " << theta << endl; //Find some GUIlv
-        line( DstImage, pt1, pt2, 255, 2, LINE_8,0);
+        line( DstImage, pt1, pt2,255, 5, LINE_8,0);
     }
     
-    return i_GiveOut;
+    //return i_GiveOut;
 }
 
-vector<vector<Vec2f> > GetCountour(Mat& InputImage)
+void GetCountour(Mat& InputImage)
 {
     //Define variables
     Mat SourceImg, LineImg;

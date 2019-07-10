@@ -209,20 +209,14 @@ int main(int argc, char ** argv)
                 block_list.emplace_back(block);
 		}
 	};
-
+    
 	// Dilate
 	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
 	dilate(image, image, element);
 
+     GetCountour(_image);
     testImage("Dilated", image);
-
-    Point pt1, pt2;
-    double x0=0, y0=0, a=0, b=0;
     
-    pt1.x = cvRound(x0 + 2000*(-b));
-    pt1.y = cvRound(y0 + 2000*(a));
-    pt2.x = cvRound(x0 - 2000*(-b));
-    pt2.y = cvRound(y0 - 2000*(a));
 	// Block search 1
 	blockSearch();
 
@@ -237,7 +231,7 @@ int main(int argc, char ** argv)
 	}
 
 	testImage("Erased", image);
-    
+
 	// Erode
 	element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(3, 3));
 	erode(image, image, element);
@@ -264,41 +258,7 @@ int main(int argc, char ** argv)
 
 	testImage("Erased the second time", image);
     
-    
-    
-    ContourLines = GetCountour(_image);
-    for (int px = 0; px < col; px++) for (int py = 0; py < row; py++)
-    {
-        for (int i=0 ; i<4 ; i++)
-        {
-            switch (i)
-            {
-                case 0:
-                    for (int j=0 ; j<3 ; j++)
-                        if (!IfLower(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
-                            image.at<uchar> (py,px) = 0;
-                    continue;
-                case 1:
-                    for (int j=0 ; j<3 ; j++)
-                        if (IfLower(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
-                            image.at<uchar> (py,px) = 0;
-                    continue;
-                case 2:
-                    for (int j=0 ; j<3 ; j++)
-                        if (!IfRighter(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
-                            image.at<uchar> (py,px) = 0;
-                    continue;
-                default:
-                    for (int j=0 ; j<3 ; j++)
-                        if (IfRighter(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
-                            image.at<uchar> (py,px) = 0;
-                    continue;
-            }
-        }
-    }
-    
-    
-    
+    testImage("Drawline", image);
     
 
 	// Block search 3

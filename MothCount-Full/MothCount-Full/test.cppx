@@ -72,3 +72,37 @@ int main()
     
     return 0;
 }
+
+/*
+cin.get();
+for (int px = 0; px < col; px++) for (int py = 0; py < row; py++)
+{
+for (int i=0 ; i<4 ; i++)
+{
+if(i=0)
+{
+for (int j=0 ; j<3 ; j++)
+if (!IfLower(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
+image.at<uchar> (py,px) = 0;
+}
+else if(i=1)
+{
+for (int j=0 ; j<3 ; j++)
+if (IfLower(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
+image.at<uchar> (py,px) = 0;
+}
+else if(i=2)
+{
+for (int j=0 ; j<3 ; j++)
+if (!IfRighter(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
+image.at<uchar> (py,px) = 0;
+}
+else
+{
+for (int j=0 ; j<3 ; j++)
+if (IfRighter(ContourLines[i][j][0], ContourLines[i][j][1], Point(i, j)))
+image.at<uchar> (py,px) = 0;
+}
+}
+}
+*/
