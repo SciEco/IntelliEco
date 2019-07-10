@@ -90,11 +90,15 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
      const double THRESHOLD_RHO = 0, THRESHOLD_THETA = 1 * CV_PI/180;
      */
     int upCount=0, downCount=0, leftCount=0, rightCount=0;
-    cout << LineImage.cols << " " << LineImage.rows << "\n" << endl;
+    
+    vector<vector<Vec2f> > i_GiveOut(4);
+    vector<Vec2f> upGO(LinePerEdge), downGO(LinePerEdge), leftGO(LinePerEdge), rightGO(LinePerEdge);
+    
     //Go through all the lines
     for( size_t i = 0; i < lines.size(); i++ )
     {
         float rho = lines[i][0], theta = lines[i][1];
+        //MARK 1 HERE 2019-07-08
         /*
          //See if the line is "too close". If so, omit it. If not, remember it.
          if (abs(memrho - rho)<THRESHOLD_RHO || abs(memtheta - theta)<THRESHOLD_THETA)
@@ -113,8 +117,9 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                 continue;
             else
             {
+                rightGO[rightCount][0] = rho;
+                rightGO[rightCount][1] = theta;
                 rightCount++;
-                cout << "right" << endl;
             }
             
         }
@@ -124,8 +129,9 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                 continue;
             else
             {
+                downGO[downCount][0] = rho;
+                downGO[downCount][1] = theta;
                 downCount++;
-                cout << "down" << endl;
             }
         }
         else
@@ -136,8 +142,9 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                     continue;
                 else
                 {
+                    upGO[upCount][0] = rho;
+                    upGO[upCount][1] = theta;
                     upCount++;
-                    cout << "up" << endl;
                 }
             }
             else
@@ -146,61 +153,61 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                     continue;
                 else
                 {
+                    leftGO[leftCount-1][0] = rho;
+                    leftGO[leftCount-1][1] = theta;
                     leftCount++;
-                    cout << "left" << endl;
                 }
             }
             
         }
+        
+        //Store operation
+        i_GiveOut[0] = upGO;
+        i_GiveOut[1] = downGO;
+        i_GiveOut[2] = leftGO;
+        i_GiveOut[3] = rightGO;
         
         //END MARK 1
         Point pt1, pt2;
-        //Calculate the line's k,b(y=kx+b);m,n(x=my+n)
+        double a = cos(theta), b = sin(theta);
+        double x0 = a*rho, y0 = b*rho;
         
-        if (theta < 0.01 && theta > -0.01)
+    
+        if (rho < 0)
         {
-            //double k = -1 * cos(theta)/sin(theta), b = rho/sin(theta);
-            double n = -1 * rho/sin(theta) / tan(theta);
-            pt1.x = n;
-            pt2.x = n;
-            pt1.y = 20;
-            pt2.y = LineImage.rows - 20;
+            pt1.x = cvRound(x0 - 100*(-b));
+            pt1.y = cvRound(y0 - 100*(a));
+            pt2.x = cvRound(x0 - 800*(-b));
+            pt2.y = cvRound(y0 - 800*(a));
+            
+        }
+        else if (rho >= 500)
+        {
+            pt1.x = cvRound(x0 - 70*(-b));
+            pt1.y = cvRound(y0 - 70*(a));
+            pt2.x = cvRound(x0 - 1100*(-b));
+            pt2.y = cvRound(y0 - 1100*(a));
         }
         else
         {
-            double k = -1 * cos(theta)/sin(theta), b = rho/sin(theta);
-            //double m = -1 * tan(theta), n = -1 * rho/sin(theta) / tan(theta);
+            if (theta >= 0.70)
+            {
+                pt1.x = cvRound(x0 + 10*(-b));
+                pt1.y = cvRound(y0 + 10*(a));
+                pt2.x = cvRound(x0 - 950*(-b));
+                pt2.y = cvRound(y0 - 950*(a));
+            }
+            else
+            {
+                pt1.x = cvRound(x0 + 700*(-b));
+                pt1.y = cvRound(y0 + 700*(a));
+                pt2.x = cvRound(x0 - 10*(-b));
+                pt2.y = cvRound(y0 - 10*(a));
+            }
             
-            for (int x0=0 ; x0<LineImage.cols ; x0++)
-            {
-                double y0 = k * x0 + b;
-                if (y0 < LineImage.rows && y0 > 0)
-                {
-                    pt1.x = x0 + 40 * sin(theta);
-                    if (k>0)
-                        pt1.y = y0 + 40 * abs(cos(theta));
-                    else
-                        pt1.y = y0 - 40 * abs(cos(theta));
-                    break;
-                }
-            }
-
-            for (int x0 = pt1.x + 1 ; x0<LineImage.cols ; x0++)
-            {
-                double y0 = k * x0 + b;
-                pt2.x = x0 - 40 * sin(theta);
-                if (k>0)
-                    pt2.y = y0 - 40 * abs(cos(theta));
-                else
-                    pt2.y = y0 + 40 * abs(cos(theta));
-                if (y0 > LineImage.rows || y0 < 0)
-                    break;
-            }
         }
-        cout << "rho " << rho << " " << "theta " << theta << endl;
-        cout << "pt1 " << pt1.x << " " << pt1.y << endl << "pt2 " << pt2.x << " " << pt2.y << endl;
         //cout << rho << " " << theta << endl; //Find some GUIlv
-        line(DstImage, pt1, pt2, 255, 5, LINE_8, 0);
+        line( DstImage, pt1, pt2,255, 5, LINE_8,0);
     }
     
     //return i_GiveOut;
@@ -225,6 +232,6 @@ void GetCountour(Mat& InputImage)
     cvtColor(LineImg, LineImg, CV_BGR2GRAY);
     
     return DetectAndDrawLines(_LineImg, InputImage);
-    //testImage("Test2", InputImage);
+    testImage("Test2", InputImage);
 }
 

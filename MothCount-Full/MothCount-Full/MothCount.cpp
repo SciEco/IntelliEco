@@ -131,7 +131,7 @@ int main(int argc, char ** argv)
 		return -1;
 	}
     
-    testImage("Source", image);
+    //testImage("Source", image);
 
 	// If oriented potrait, then transpose it landscape
 	if (image.cols < image.rows)
@@ -170,7 +170,7 @@ int main(int argc, char ** argv)
 	int hMean = hSum1 / area1;
 	inRange(image, Scalar(hMean - 5, 19, 70), Scalar(hMean + 10, 255, 255), image);
 
-    testImage("Threshold", image);
+    //testImage("Threshold", image);
 
 	// BFS algorithm
 	auto bfs = [get, col, row](int x, int y)
@@ -214,8 +214,8 @@ int main(int argc, char ** argv)
 	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
 	dilate(image, image, element);
 
-     GetCountour(_image);
-    testImage("Dilated", image);
+    GetCountour(_image);
+    testImage("Dilated Drewline", image);
     
 	// Block search 1
 	blockSearch();
@@ -230,13 +230,13 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	testImage("Erased", image);
+	//testImage("Erased", image);
 
 	// Erode
 	element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(3, 3));
 	erode(image, image, element);
 
-	testImage("Eroded", image);
+	//testImage("Eroded", image);
 
 	// Block search 2
 	blockSearch();
@@ -256,11 +256,8 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	testImage("Erased the second time", image);
+	//testImage("Erased the second time", image);
     
-    testImage("Drawline", image);
-    
-
 	// Block search 3
 	blockSearch();
 
@@ -291,6 +288,5 @@ int main(int argc, char ** argv)
 
     testImage("Result", image); // Show our image inside it.
     
-	waitKey(0); // Wait for a keystroke in the window
 	return 0;
 }

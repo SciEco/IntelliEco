@@ -37,6 +37,18 @@ bool IfRighter(double m, double n, Point p)
 int main()
 {
     Mat image(768,1024,CV_32F);
+    cout << "ROWS: " << image.rows << "\t" << "COLS: " << image.cols << endl;
+    
+    Point pt1;
+    //rows y cols x
+    //double rho=200, theta= CV_PI/180 * 30;
+    
+    return 0;
+}
+/*
+int main()
+{
+    Mat image(768,1024,CV_32F);
     
     //if k doesn't exist...
     double rho=200, theta= CV_PI/180 * 30;
@@ -55,7 +67,7 @@ int main()
     pt1.y = cvRound(y0 + 2000*(a));
     pt2.x = cvRound(x0 - 2000*(-b));
     pt2.y = cvRound(y0 - 2000*(a));
-     */
+     * //
     
     //cout << k << " " << b;
     //cin.get();
@@ -72,6 +84,7 @@ int main()
     
     return 0;
 }
+*/
 
 /*
 cin.get();
