@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sp;
     SharedPreferences.Editor spEdit;
 
+    LocationManager locationManager;
+
     EditText editTextServer;
     EditText editTextUsername;
     EditText editTextPassword;
@@ -53,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
     String password;
     String imageFilePath;
     String imageFilename;
-    double latitude;
-    double longtitude;
 
     Gson gson;
 
@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 long time = System.currentTimeMillis();
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                double longtitude = location.getLongitude();
+                double latitude = location.getLatitude();
                 DataSample dataSample = new DataSample(username, time, longtitude, latitude, imageFilename);
                 String json = gson.toJson(dataSample);
                 jsonPath = getExternalCacheDir() + "/DataSample.json";
@@ -78,7 +81,11 @@ public class MainActivity extends AppCompatActivity {
                 FileOutputStream fileOutputStream = new FileOutputStream(jsonFile);
                 fileOutputStream.write(json.getBytes());
             }
-            catch (IOException e)
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -163,34 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
         gson = new Gson();
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    latitude = location.getLatitude();
-                    longtitude = location.getLongitude();
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-            });
-        }
-        catch (SecurityException e) {
-            e.printStackTrace();
-        }
-        catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (savedInstanceState != null)
         {
