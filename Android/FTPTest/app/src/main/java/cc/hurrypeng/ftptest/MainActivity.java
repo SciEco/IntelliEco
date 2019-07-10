@@ -4,12 +4,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import android.annotation.TargetApi;
-import android.content.ContentUris;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -17,13 +18,13 @@ import android.os.Bundle;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -42,18 +43,48 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextPassword;
     Button buttonSelectFile;
 
+    ProgressDialog progressDialog;
+
     final int REQUEST_TAKE_PHOTO = 1;
     Uri imageUri;
 
     String server;
     String username;
     String password;
-    String filePath;
-    String filename;
+    String imageFilePath;
+    String imageFilename;
+    double latitude;
+    double longtitude;
 
     Gson gson;
 
     private class FtpTask extends AsyncTask<String, String, String> {
+        private String jsonPath;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog.setTitle("Packing Data Sample");
+            progressDialog.show();
+
+            try {
+                long time = System.currentTimeMillis();
+                DataSample dataSample = new DataSample(username, time, longtitude, latitude, imageFilename);
+                String json = gson.toJson(dataSample);
+                jsonPath = getExternalCacheDir() + "/DataSample.json";
+                File jsonFile = new File(jsonPath);
+                if (jsonFile.exists()) jsonFile.delete();
+                jsonFile.createNewFile();
+                FileOutputStream fileOutputStream = new FileOutputStream(jsonFile);
+                fileOutputStream.write(json.getBytes());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            progressDialog.setTitle("Uploading Data Sample");
+        }
+
         @Override
         protected String doInBackground(String... strings) {
             new Thread(new Runnable() {
@@ -81,7 +112,10 @@ public class MainActivity extends AppCompatActivity {
                         ftp.makeDirectory("/users/" + username);
                         ftp.changeWorkingDirectory("/users/" + username);
                         ftp.setFileType(FTP.BINARY_FILE_TYPE);
-                        ftp.storeFile(filename, new FileInputStream(filePath));
+
+                        ftp.storeFile("DataSample.json", new FileInputStream(jsonPath));
+                        ftp.storeFile(imageFilename, new FileInputStream(imageFilePath));
+
                         ftp.makeDirectory("/users/" + username + "/uploadfin");
                         //ftp.retrieveFile("/6.jpeg",new FileOutputStream("/storage/emulated/0/Android/data/cc.hurrypeng.ftptest/files/6.jpg"));
                         // ... // transfer files
@@ -93,6 +127,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).run();
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressDialog.setTitle("Server Processing");
+            progressDialog.dismiss();
         }
     }
 
@@ -116,6 +156,41 @@ public class MainActivity extends AppCompatActivity {
         editTextServer.setText(server);
         editTextUsername.setText(username);
         editTextPassword.setText(password);
+
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+
+        gson = new Gson();
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    latitude = location.getLatitude();
+                    longtitude = location.getLongitude();
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+                }
+
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+                }
+            });
+        }
+        catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
         if (savedInstanceState != null)
         {
@@ -142,9 +217,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CHOOSEFILE);
                 */
 
-                filePath = getExternalCacheDir() + "/cache.jpg";
-                filename = filePath.substring(filePath.lastIndexOf('/') + 1, filePath.length());
-                File photo = new File(filePath);
+                imageFilePath = getExternalCacheDir() + "/cache.jpg";
+                imageFilename = imageFilePath.substring(imageFilePath.lastIndexOf('/') + 1, imageFilePath.length());
+                File photo = new File(imageFilePath);
                 try {
                     if (photo.exists()) photo.delete();
                     photo.createNewFile();
