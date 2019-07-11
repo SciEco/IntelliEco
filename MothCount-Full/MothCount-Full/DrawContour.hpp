@@ -5,9 +5,6 @@
 //  Created by william on 2019/7/6.
 //  Copyright © 2019 W-Hsu. All rights reserved.
 //
-/*----------------------------------------------*/
-//WARNING : USED GLOBAL VARIABLE NAMES (On line 22) :
-//SourceImg, LineImg, _SourceImg, _LineImg.
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -37,76 +34,56 @@ void FindBiggest(Mat& src, Mat& dst) //dst stores the countour lines
 {
     Mat dst_middle;
     
-    //Edge detection using Canny:
-    Canny( src, dst_middle, 100,150,5);
+    Canny( src, dst_middle, 100,150,5); //Edge detection using Canny:
     
-    //Dilate
+    //Dilate : The "Canny" function draws a rather thin line.
+    //So dilate the lines to allow the "findContours" function to find it.
     //Much time to DE this BUG
-    //the contour lines 
     Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
     dilate(dst_middle, dst_middle, element);
     
-    //testImage("dst_middle", dst_middle);
+    //Get and store the edge of the "white" board:
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy; //The containers
     
-    //Get the edge of the "white" board:
-    vector<vector<Point> > contours; //Claim the container (2 lines)
-    vector<Vec4i> hierarchy;
-    
-    findContours(dst_middle, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);    //Get the edges
-    
-    //testImage("dst_middle", dst_middle);
+    findContours(dst_middle, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE); //Get the edges
     
     //Find the biggest area then output it into dst:
     vector<vector<Point> > polyContours(contours.size());
     int maxArea = 0;
-    for (int index = 0; index < contours.size(); index++){
+    for (int index = 0; index < contours.size(); index++)
+    {
         if (contourArea(contours[index]) > contourArea(contours[maxArea]))
             maxArea = index;
         approxPolyDP(contours[index], polyContours[index], 10, true);
         cout << contourArea(contours[index]) << endl;
     }
     
-    cout << endl << contourArea(contours[maxArea]) << endl;
+    //cout << endl << contourArea(contours[maxArea]) << endl; //Debugging command : print the size of the max area
     
     dst = Mat::zeros(src.size(), CV_8UC3);
     drawContours(dst, polyContours, maxArea, Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
-    
-    //testImage("Test0", dst);
 }
 
 void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
 {
     //To Detect lines:
-    vector<Vec2f> lines; // will hold the results of the 1st-time detection
-    HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); // runs the actual detection
-    //dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
+    vector<Vec2f> lines; //Container which will hold the results of the 1st-time detection
+    HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); //Runs the actual detection
+    //USAGE : dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
     
     //To draw lines:
     
-    /*
-     //Collaberate with "line too close" section, definition job.
-     //Create the container for "too close" lines
-     float memrho = lines[0][0], memtheta = lines[0][1];
-     const double THRESHOLD_RHO = 0, THRESHOLD_THETA = 1 * CV_PI/180;
-     */
     int upCount=0, downCount=0, leftCount=0, rightCount=0;
-    cout << LineImage.cols << " " << LineImage.rows << "\n" << endl;
+    //cout << LineImage.cols << " " << LineImage.rows << "\n" << endl;
+    
     //Go through all the lines
     for( size_t i = 0; i < lines.size(); i++ )
     {
         float rho = lines[i][0], theta = lines[i][1];
-        /*
-         //See if the line is "too close". If so, omit it. If not, remember it.
-         if (abs(memrho - rho)<THRESHOLD_RHO || abs(memtheta - theta)<THRESHOLD_THETA)
-         continue;
-         else
-         {
-         memrho = rho;
-         memtheta = theta;
-         }
-         */
         
         //"const int LinePerEdge" lines each edge:
+        //Controls the maximum number of lines on each edge.
         if (rho < 0)
         {
             if (rightCount >= LinePerEdge)
@@ -152,12 +129,11 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
             }
             
         }
+
         
-        //END MARK 1
-        Point pt1, pt2;
-        //Calculate the line's k,b(y=kx+b);m,n(x=my+n)
+        Point pt1, pt2; //Using pt1 and pt2 as terminals to draw a segment.
         
-        if (theta < 0.01 && theta > -0.01)
+        if (theta < 0.001 && theta > -0.001) //If the line is close to vertical
         {
             //double k = -1 * cos(theta)/sin(theta), b = rho/sin(theta);
             double n = -1 * rho/sin(theta) / tan(theta);
@@ -197,13 +173,9 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                     break;
             }
         }
-        cout << "rho " << rho << " " << "theta " << theta << endl;
-        cout << "pt1 " << pt1.x << " " << pt1.y << endl << "pt2 " << pt2.x << " " << pt2.y << endl;
-        //cout << rho << " " << theta << endl; //Find some GUIlv
+        
         line(DstImage, pt1, pt2, 255, 5, LINE_8, 0);
     }
-    
-    //return i_GiveOut;
 }
 
 void GetCountour(Mat& InputImage)
@@ -216,15 +188,10 @@ void GetCountour(Mat& InputImage)
     //Load an image:
     SourceImg = InputImage;
     
-    //cvtColor(SourceImg, SourceImg, CV_BGR2GRAY);
-    
     FindBiggest(_SourceImg, _LineImg);
-    testImage("Test1", _LineImg);
     //IMPORTANT!! Must convert Polypic to GRAYSCALE to (draw lines by using Houghlines)
     //Takes me much time to DE this BUG
     cvtColor(LineImg, LineImg, CV_BGR2GRAY);
-    
-    return DetectAndDrawLines(_LineImg, InputImage);
-    //testImage("Test2", InputImage);
+    DetectAndDrawLines(_LineImg, InputImage);
 }
 

@@ -14,35 +14,6 @@ using namespace std;
 
 bool Counted[2001][2001] = { false };
 
-//william-NewDefined
-vector<vector<Vec2f> > ContourLines;
-
-bool IfLower(double rho, double theta, Point p)
-//1 - Bigger/Lower than y = kx + b
-//0 - Smaller/Higher than y = kx + b
-{
-    double k = -1 * cos(theta)/sin(theta), b = rho/sin(theta);
-    double yShouldBe = k * p.x + b;
-    //cout << yShouldBe;
-    if (yShouldBe <= double(p.y))
-        return true;
-    else
-        return false;
-}
-
-bool IfRighter(double rho, double theta, Point p)
-//1 - Righter than y = mx + n
-//0 - Lefter than y = mx + n
-{
-    double m = -1 * tan(theta), n = -1 * rho/sin(theta) / tan(theta);
-    double xShouldBe = m * p.y + n;
-    if (xShouldBe <= p.x)
-        return true;
-    else
-        return false;
-}
-//END William-NewDefined
-
 int dist(Point & p, Point & q)
 {
 	return sqrt((p.x - q.x)*(p.x - q.x) + (p.y - q.y)*(p.y - q.y));
@@ -150,7 +121,7 @@ int main(int argc, char ** argv)
 	int col = image.cols, row = image.rows;
 	int areaSum = col * row;
 	auto get = [&image](int x, int y) {return image.at<uchar>(y, x); };
-
+    
 	// Convert to HSV colourspace
 	cvtColor(image, image, COLOR_BGR2HSV);
 
@@ -169,6 +140,8 @@ int main(int argc, char ** argv)
 	}
 	int hMean = hSum1 / area1;
 	inRange(image, Scalar(hMean - 5, 19, 70), Scalar(hMean + 10, 255, 255), image);
+    
+    testImage("Thresholded", image);
 
     //testImage("Threshold", image);
 
@@ -213,9 +186,8 @@ int main(int argc, char ** argv)
 	// Dilate
 	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
 	dilate(image, image, element);
-
+    
     GetCountour(_image);
-    testImage("Dilated Drewline", image);
     
 	// Block search 1
 	blockSearch();
@@ -237,7 +209,7 @@ int main(int argc, char ** argv)
 	erode(image, image, element);
 
 	//testImage("Eroded", image);
-
+    
 	// Block search 2
 	blockSearch();
 
@@ -255,8 +227,6 @@ int main(int argc, char ** argv)
 			block.erase(image);
 		}
 	}
-
-	//testImage("Erased the second time", image);
     
 	// Block search 3
 	blockSearch();

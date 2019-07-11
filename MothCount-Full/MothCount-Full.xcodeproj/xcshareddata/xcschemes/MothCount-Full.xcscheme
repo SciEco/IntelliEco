@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/william/1.jpg"
+            argument = "/Users/william/3.jpeg"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
