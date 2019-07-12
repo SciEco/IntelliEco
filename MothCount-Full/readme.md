@@ -37,7 +37,7 @@ main.cpp使用以下头文件：
 ```
 以及为本项目编写的：  
     `"DrawContour.hpp"`
-    要查看其说明，敬请参见"readme.DrawContours.md"
+    要查看其说明，敬请参见[readme.DrawContours.md](./readme.DrawContours.md)
 
 main.cpp使用命名空间  
 ```
@@ -47,7 +47,7 @@ main.cpp使用命名空间
 
 ### 类对象  
 Block类： 
-```
+```c++
 class Block //含义：黑白二值图像上的一块相连的，且颜色相同的区域，称作“连续块”。  
     //成员： 
 {  
@@ -68,12 +68,12 @@ public:
     void erase();                //抹除该连续块。即将本连续块的颜色值改变为与自己相反的颜色。 
 }
 ```
-        
+
 ### 核心算法  
 1. **颜色阈值计算**  
    目的：计算二值化处理图片时的H阈值。  
    代码  
-```
+```c++
 int hSum1 = 0, sSum1 = 0, vSum1 = 0;
 int area1 = 0;
 for (int i = 0; i < col * 3; i += 3) for (int j = 0; j < row; j++)
