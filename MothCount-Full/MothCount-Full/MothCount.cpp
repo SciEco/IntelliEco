@@ -24,7 +24,7 @@ class Block
 public:
 	Block();
 	void add(Point p);
-	long area() const; //
+	long area() const;
 	Point getCog();
 	int getR();
 	int getAPR2();
@@ -230,7 +230,17 @@ int main(int argc, char ** argv)
     
 	// Block search 3
 	blockSearch();
-
+    
+    //See if the board exists
+    long maximumWhite = 0;
+    for(Block & block : block_list)
+    {
+        if (maximumWhite < block.area())
+            maximumWhite = block.area();
+    }
+    if (maximumWhite < 50000)
+        return 99;
+    
 	// Calculate boardArea
 	int boardArea = 0;
 	for (Block & block : block_list)
