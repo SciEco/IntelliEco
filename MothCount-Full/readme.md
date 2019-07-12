@@ -96,8 +96,7 @@ for (int i = 0; i < col * 3; i += 3) for (int j = 0; j < row; j++)
 ```
 auto bfs = [get, col, row](int x, int y)
 	{
-		if (Counted[x][y])
-            return Block();
+		if (Counted[x][y]) return Block();
 		Block block;
 		block.white = (get(x, y) == 255 ? true : false);
 		queue<Point> q;
