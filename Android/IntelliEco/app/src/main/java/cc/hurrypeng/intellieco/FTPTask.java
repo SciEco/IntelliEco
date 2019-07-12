@@ -3,6 +3,8 @@ package cc.hurrypeng.intellieco;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
+
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -17,25 +19,36 @@ import java.util.UUID;
 class FTPTask extends Thread {
     final static int RESPONSE_RECV = 1;
 
-    private Handler handler;
-    private File response;
-    private ArrayList<File> sends;
+    protected File response;
+    protected ArrayList<File> sends;
 
-    private String server;
-    private String username;
-    private String password;
-    private String uuid;
+    protected Handler handler;
 
-    public FTPTask(Handler handler, File response, File... send) {
+    protected String server;
+    protected String ftpUsername;
+    protected String ftpPassword;
+    protected String uuid;
+
+    FTPTask(File response, File... send) {
         super();
-        this.handler = handler;
         this.response = response;
-        server = "ie.hurrypeng.cc";
-        username = "IE_User";
-        password = "PKUSZE410";
-        uuid = UUID.randomUUID().toString().replaceAll("-", "");
         sends = new ArrayList<File>();
         for (File file : send) sends.add(file);
+
+        handler = new FTPTaskHandler();
+
+        server = "ie.hurrypeng.cc";
+        ftpUsername = "IE_User";
+        ftpPassword = "PKUSZE410";
+        uuid = UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    void execute() {
+        onPreExecute();
+        start();
+    }
+
+    void onPreExecute() {
     }
 
     @Override
@@ -52,7 +65,7 @@ class FTPTask extends Thread {
                 return;
             }
 
-            if(!ftp.login(username, password)) {
+            if(!ftp.login(ftpUsername, ftpPassword)) {
                 return;
             }
 
@@ -71,27 +84,17 @@ class FTPTask extends Thread {
             ftp.makeDirectory("request");
 
             // Wait for response
-            int count = 10;
-            while (count != 0)
+            while (true)
             {
                 if (ftp.removeDirectory("response")) break;
 
-                // Sleep
-                new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
-                        try {
-                            Thread.sleep(1000);
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }.run();
-                count--;
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            if (count == 0) return;
 
             if (response.exists()) response.delete();
             response.createNewFile();
@@ -102,6 +105,8 @@ class FTPTask extends Thread {
 
             ftp.makeDirectory("receive");
 
+            ftp.disconnect();
+
             Message message = new Message();
             message.what = RESPONSE_RECV;
             handler.sendMessage(message);
@@ -111,4 +116,20 @@ class FTPTask extends Thread {
         }
     }
 
+    class FTPTaskHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what) {
+                case FTPTask.RESPONSE_RECV: {
+                    onPostExecute();
+                    break;
+                }
+            }
+        }
+    }
+
+    void onPostExecute() {
+    }
 }

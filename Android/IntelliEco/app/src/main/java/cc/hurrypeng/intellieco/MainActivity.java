@@ -1,31 +1,20 @@
 package cc.hurrypeng.intellieco;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.fonts.FontStyle;
-import android.net.Uri;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,9 +27,11 @@ public class MainActivity extends AppCompatActivity {
     File request;
     File response;
 
-    Handler handler;
+    String username;
+    String password;
 
-    final int REQUEST_TAKE_PHOTO = 1;
+    SharedPreferences sp;
+    SharedPreferences.Editor spEdit;
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -61,14 +52,20 @@ public class MainActivity extends AppCompatActivity {
         editTextPassword = findViewById(R.id.EditTextPassword);
         buttonLogin = findViewById(R.id.ButtonLogin);
 
-        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
         progressDialog.setCancelable(false);
 
         request = new File(getExternalCacheDir() + "/request.json");
         response = new File(getExternalCacheDir() + "/response.json");
 
-        handler = new TaskHandler();
+        sp = getSharedPreferences("login", MODE_PRIVATE);
+        spEdit = sp.edit();
+
+        if (!sp.getString("username", "").isEmpty()) {
+            editTextUsername.setText(sp.getString("username", ""));
+            editTextPassword.setText(sp.getString("password", ""));
+        }
 
         /*
         // Example of a call to a native method
@@ -79,77 +76,56 @@ public class MainActivity extends AppCompatActivity {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DataPack.Login loginPack = new DataPack.Login();
-                loginPack.username = editTextUsername.getText().toString();
-                loginPack.password = editTextPassword.getText().toString();
-                loginPack.request = "login";
+                progressDialog.setMessage("Logging in");
+                progressDialog.show();
+
+                DataPack.LoginRequest loginRequest = new DataPack.LoginRequest();
+                loginRequest.username = username = editTextUsername.getText().toString();
+                loginRequest.password = password = editTextPassword.getText().toString();
+                loginRequest.request = "login";
+
+                spEdit.putString("username", username);
+                spEdit.putString("password", password);
+                spEdit.apply();
 
                 try {
                     if (request.exists()) request.delete();
                     request.createNewFile();
 
                     FileOutputStream requestStream = new FileOutputStream(request);
-                    requestStream.write(new Gson().toJson(loginPack).getBytes());
+                    requestStream.write(new Gson().toJson(loginRequest).getBytes());
                     requestStream.close();
 
-                    progressDialog.setTitle("Logging in");
-                    progressDialog.show();
-                    FTPTask ftpTask = new FTPTask(handler, response, request);
-                    ftpTask.start();
+                    new FTPTask(response, request) {
+                        @Override
+                        void onPostExecute() {
+                            super.onPostExecute();
+                            try {
+                                progressDialog.dismiss();
+                                String responseContent = Util.getContent(response);
+                                if (responseContent.equals("")) {
+                                    Snackbar.make(buttonLogin, "FTP connection failed! ", Snackbar.LENGTH_LONG).show();
+                                }
+
+                                DataPack.LoginResponse loginResponse = new Gson().fromJson(responseContent, DataPack.LoginResponse.class);
+                                if (loginResponse.authority.equals("unauthorised")) Snackbar.make(buttonLogin, "Unauthorised! ", Snackbar.LENGTH_LONG).show();
+                                else {
+                                    Intent intent = new Intent(MainActivity.this, RecordActivity.class);
+                                    intent.putExtra("username", username);
+                                    intent.putExtra("password", password);
+                                    startActivity(intent);
+                                }
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.execute();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-                /*
-                String imagePath, imageName;
-                imagePath = getExternalCacheDir() + "/cache.jpg";
-                imageName = imagePath.substring(imagePath.lastIndexOf('/') + 1, imagePath.length());
-                File image = new File(imagePath);
-                try {
-                    if (image.exists()) image.delete();
-                    image.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Uri imageUri;
-                if (Build.VERSION.SDK_INT >= 24) {
-                    imageUri = FileProvider.getUriForFile(MainActivity.this,
-                            "cc.hurrypeng.intellieco.fileprovider", image);
-                } else {
-                    imageUri = Uri.fromFile(image);
-                }
-
-                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, REQUEST_TAKE_PHOTO);
-                */
             }
         });
-    }
-
-    class TaskHandler extends Handler {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-
-            switch (msg.what) {
-                case FTPTask.RESPONSE_RECV: {
-                    try {
-                        progressDialog.dismiss();
-                        String responseContent = Util.getContent(response);
-                        if (responseContent.equals("")) {
-                            Toast.makeText(MainActivity.this, "FTP connection failed! ", Toast.LENGTH_LONG).show();
-                        }
-
-                        DataPack.LoginResponse loginResponse = new Gson().fromJson(responseContent, DataPack.LoginResponse.class);
-                        Toast.makeText(MainActivity.this, loginResponse.authority, Toast.LENGTH_LONG).show();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-            }
-        }
     }
 }

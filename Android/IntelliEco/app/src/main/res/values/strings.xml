@@ -3,4 +3,5 @@
     <string name="server">ie.hurrypeng.cc</string>
     <string name="username">IE_User</string>
     <string name="password">PKUSZE410</string>
+    <string name="title_activity_record">RecordActivity</string>
 </resources>

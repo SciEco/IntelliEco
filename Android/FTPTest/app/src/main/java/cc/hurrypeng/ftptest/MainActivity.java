@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class FtpTask extends AsyncTask<String, String, String> {
         private String jsonPath;
+        private boolean success = false;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.e("TAG", "FTP server refused connection.");
                         }
 
-                        ftp.login(username, password);
+                        success = ftp.login(username, password);
 
                         ftp.enterLocalPassiveMode();
                         ftp.setRemoteVerificationEnabled(false);
@@ -140,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             progressDialog.setTitle("Server Processing");
             progressDialog.dismiss();
+            if (!success) Toast.makeText(MainActivity.this, "FTP operation failed! ", Toast.LENGTH_LONG).show();
+            else Toast.makeText(MainActivity.this, "FTP upload successful", Toast.LENGTH_LONG).show();
         }
     }
 
