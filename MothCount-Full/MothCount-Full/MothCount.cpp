@@ -96,10 +96,10 @@ int main(int argc, char ** argv)
 	image = imread(argv[1], IMREAD_COLOR); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
-		cout << "Could not open or find the image" << std::endl;
-		cin.get();
-		cin.get();
-		return -1;
+		//cout << "Could not open or find the image" << std::endl;
+		//cin.get();
+		//cin.get();
+		return -2;
 	}
     
     //testImage("Source", image);
@@ -141,7 +141,7 @@ int main(int argc, char ** argv)
 	int hMean = hSum1 / area1;
 	inRange(image, Scalar(hMean - 5, 19, 70), Scalar(hMean + 10, 255, 255), image);
     
-    testImage("Thresholded", image);
+    //testImage("Thresholded", image);
 
     //testImage("Threshold", image);
 
@@ -216,7 +216,7 @@ int main(int argc, char ** argv)
 	// Print block info
 	block_list.sort();
 	for (Block & block : block_list)
-        cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
+        //cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
 
 	// Erase all tiny blocks and small white blocks
 	for (Block & block : block_list)
@@ -238,8 +238,8 @@ int main(int argc, char ** argv)
         if (maximumWhite < block.area())
             maximumWhite = block.area();
     }
-    if (maximumWhite < 50000)
-        return 99;
+    if (maximumWhite < 5000000)
+        return -1;
     
 	// Calculate boardArea
 	int boardArea = 0;
@@ -256,17 +256,17 @@ int main(int argc, char ** argv)
 
 	// 632.61 per moth with board area being 427280
 	// moth/board = 1.60e-3
-	// cout << mothArea / 65.0 << ' ' << boardArea << '\n';
+	// //cout << mothArea / 65.0 << ' ' << boardArea << '\n';
 	int mothArea = 0;
 	for (Block & block : block_list)
         if (!block.white && block.area() < 7000) mothArea += block.area();
 
-	cout << "board area: " << boardArea << '\n';
-	cout << "single moth area: " << singleMothArea << '\n';
-	cout << "total moth area: " << mothArea << '\n';
-	cout << mothArea / singleMothArea << " moth(s) counted. ";
+	//cout << "board area: " << boardArea << '\n';
+	//cout << "single moth area: " << singleMothArea << '\n';
+	//cout << "total moth area: " << mothArea << '\n';
+	//cout << mothArea / singleMothArea << " moth(s) counted. ";
 
-    testImage("Result", image); // Show our image inside it.
+    //testImage("Result", image); // Show our image inside it.
     
-	return 0;
+	return (mothArea / singleMothArea);
 }

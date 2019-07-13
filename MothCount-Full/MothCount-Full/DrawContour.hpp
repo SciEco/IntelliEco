@@ -56,7 +56,7 @@ void FindBiggest(Mat& src, Mat& dst) //dst stores the countour lines
         if (contourArea(contours[index]) > contourArea(contours[maxArea]))
             maxArea = index;
         approxPolyDP(contours[index], polyContours[index], 10, true);
-        cout << contourArea(contours[index]) << endl;
+        //cout << contourArea(contours[index]) << endl;
     }
     
     //cout << endl << contourArea(contours[maxArea]) << endl; //Debugging command : print the size of the max area
@@ -75,7 +75,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
     //To draw lines:
     
     int upCount=0, downCount=0, leftCount=0, rightCount=0;
-    //cout << LineImage.cols << " " << LineImage.rows << "\n" << endl;
+    ////cout << LineImage.cols << " " << LineImage.rows << "\n" << endl;
     
     //Go through all the lines
     for( size_t i = 0; i < lines.size(); i++ )
@@ -91,7 +91,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
             else
             {
                 rightCount++;
-                cout << "right" << endl;
+                //cout << "right" << endl;
             }
             
         }
@@ -102,7 +102,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
             else
             {
                 downCount++;
-                cout << "down" << endl;
+                //cout << "down" << endl;
             }
         }
         else
@@ -114,7 +114,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                 else
                 {
                     upCount++;
-                    cout << "up" << endl;
+                    //cout << "up" << endl;
                 }
             }
             else
@@ -124,7 +124,7 @@ void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
                 else
                 {
                     leftCount++;
-                    cout << "left" << endl;
+                    //cout << "left" << endl;
                 }
             }
             
