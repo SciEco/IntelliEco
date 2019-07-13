@@ -50,13 +50,16 @@ class RecordAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ViewHolder holder1 = (ViewHolder) holder;
         DataPack.Record record = records.get(position);
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format=new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         Date date = new Date(record.time);
         String timeString = format.format(date);
 
         DecimalFormat df = new DecimalFormat("#.0000");
 
-        if (record.mothCount >= 0) holder1.textViewMothCount.setText(String.valueOf(record.mothCount));
+        if (record.mothCount >= 0) {
+            holder1.textViewMothCount.setTextColor(0x8A000000);
+            holder1.textViewMothCount.setText(String.valueOf(record.mothCount));
+        }
         else {
             holder1.textViewMothCount.setTextColor(0xFFFF0000);
             holder1.textViewMothCount.setText("!");
