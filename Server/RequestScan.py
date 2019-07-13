@@ -26,4 +26,4 @@ while True:
             os.remove(uuidDir + "\\response.json")
             os.rmdir(uuidDir)
             
-    time.sleep(1)
+    time.sleep(0.1)

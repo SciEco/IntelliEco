@@ -59,7 +59,6 @@
             android:selectAllOnFocus="true" />
 
     </com.google.android.material.textfield.TextInputLayout>
-    
 
 
     <Button
@@ -67,15 +66,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="48dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:text="Login"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/TextFieldPassword"
         app:layout_constraintTop_toBottomOf="@+id/TextFieldPassword"
-        app:layout_constraintVertical_bias="0.2" />
+        style="@style/Widget.AppCompat.Button.Colored"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

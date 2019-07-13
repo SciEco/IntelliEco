@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -47,6 +48,11 @@ public class RecordActivity extends AppCompatActivity {
     File response;
     File sampleImage;
 
+    SharedPreferences sp;
+    SharedPreferences.Editor spEdit;
+
+    long lastWarning;
+
     LocationManager locationManager;
 
     final int REQUEST_TAKE_PHOTO = 1;
@@ -73,6 +79,11 @@ public class RecordActivity extends AppCompatActivity {
         request = new File(getExternalCacheDir() + "/request.json");
         response = new File(getExternalCacheDir() + "/response.json");
         sampleImage = new File(getExternalCacheDir() + "/cache.jpg");
+
+        sp = getSharedPreferences("warning", MODE_PRIVATE);
+        spEdit = sp.edit();
+
+        lastWarning = sp.getLong("lastWarning", 0);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -165,12 +176,14 @@ public class RecordActivity extends AppCompatActivity {
                                    if (generalResponse.authority.equals("unauthorised")) Snackbar.make(fab, "Unauthorised! ", Snackbar.LENGTH_LONG).show();
                                    else {
                                        DataPack.UploadResponse uploadResponse = new Gson().fromJson(responseContent, DataPack.UploadResponse.class);
-                                       AlertDialog.Builder dialog = new AlertDialog.Builder(RecordActivity.this);
                                        refresh();
-                                       dialog.setTitle("Analyse Result");
-                                       dialog.setMessage(uploadResponse.mothCount + " moth(s) have been counted. ");
-                                       dialog.setCancelable(true);
-                                       dialog.show();
+                                       if (uploadResponse.mothCount >= 0) {
+                                           AlertDialog.Builder dialog = new AlertDialog.Builder(RecordActivity.this);
+                                           dialog.setTitle("Analyse Result");
+                                           dialog.setMessage(uploadResponse.mothCount + " moth(s) have been detected. ");
+                                           dialog.setCancelable(true);
+                                           dialog.show();
+                                       }
                                    }
                                }
                                catch (IOException e) {
@@ -193,7 +206,7 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     void refresh() {
-        progressDialog.setMessage("Refreshing record");
+        progressDialog.setMessage("Refreshing Record");
         progressDialog.show();
 
         try {
@@ -221,10 +234,25 @@ public class RecordActivity extends AppCompatActivity {
                         }
                         DataPack.Response generalResponse = new Gson().fromJson(responseContent, DataPack.Response.class);
                         if (generalResponse.authority.equals("unauthorised")) Snackbar.make(fab, "Unauthorised! ", Snackbar.LENGTH_LONG).show();
+                        else
                         {
                             DataPack.RefreshResponse refreshResponse = new Gson().fromJson(responseContent, DataPack.RefreshResponse.class);
                             RecordAdapter adapter = new RecordAdapter(refreshResponse.records);
                             recyclerView.setAdapter(adapter);
+                            for (DataPack.Record record : refreshResponse.records)
+                            {
+                                if (record.mothCount < 0 && record.time > lastWarning)
+                                {
+                                    AlertDialog.Builder dialog = new AlertDialog.Builder(RecordActivity.this);
+                                    dialog.setTitle("Warning");
+                                    dialog.setMessage("An exceptional record has been detected. It could be a bad sample, or a moth outburst. Please check it out on the server. ");
+                                    dialog.setCancelable(true);
+                                    dialog.show();
+                                    break;
+                                }
+                            }
+                            spEdit.putLong("lastWarning" ,System.currentTimeMillis());
+                            spEdit.apply();
                         }
                     }
                     catch (IOException e) {

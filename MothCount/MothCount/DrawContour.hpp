@@ -191,7 +191,7 @@ void GetCountour(Mat& InputImage)
     FindBiggest(_SourceImg, _LineImg);
     //IMPORTANT!! Must convert Polypic to GRAYSCALE to (draw lines by using Houghlines)
     //Takes me much time to DE this BUG
-    cvtColor(LineImg, LineImg, CV_BGR2GRAY);
+    cvtColor(LineImg, LineImg, COLOR_BGR2GRAY);
     DetectAndDrawLines(_LineImg, InputImage);
 }
 

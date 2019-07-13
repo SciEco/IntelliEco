@@ -3,15 +3,13 @@
 #include <fstream>
 #include <iostream>
 #include <windows.h>
+#include <list>
 #include "json.hpp"
 
 using namespace std;
 using namespace nlohmann;
 
-const string RootDir = "C:\\IntelliEco";
-const string RecordDir = "C:\\IntelliEco\\record";
-
-int execute(string cmd)
+int execute(const string & cmd)
 {
     DWORD    dwExitCode = -1;
 
@@ -53,6 +51,44 @@ int execute(string cmd)
     return dwExitCode;
 }
 
+list<string> listFiles(const string & dir)
+{
+    HANDLE hFind;
+    WIN32_FIND_DATA findData;
+    LARGE_INTEGER size;
+
+    char dir_[100] = {'\0'};
+    strcpy(dir_, dir.c_str());
+    strcat(dir_, "\\*.*");
+
+    hFind = FindFirstFile(dir_, &findData);
+    if (hFind == INVALID_HANDLE_VALUE)
+    {
+        //cout << "Failed to find first file!\n";
+        return list<string>();
+    }
+    list<string> filenames;
+    do
+    {
+        // 忽略"."和".."两个结果 
+        if (strcmp(findData.cFileName, ".") == 0 || strcmp(findData.cFileName, "..") == 0) continue;
+        if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;    // 是否是目录 
+        filenames.emplace_back(findData.cFileName);
+    } while (FindNextFile(hFind, &findData));
+    return filenames;
+}
+
+string getExtName(const string & filename)
+{
+    string extName;
+    auto pos = filename.find_last_of('.');
+    if (pos == string::npos) return string();
+    return filename.substr(pos + 1);
+}
+
+const string RootDir = "C:\\IntelliEco";
+const string RecordDir = "C:\\IntelliEco\\record";
+
 int main(int argc, char ** argv)
 {
     ifstream usersStream(RootDir + "\\users.json");
@@ -93,10 +129,10 @@ int main(int argc, char ** argv)
                 request["longtitude"].get_to(longtitude);
                 request["latitude"].get_to(latitude);
                 request["imageFilename"].get_to(imageFilename);
-                int mothCount = execute("MothCountTest.exe " + string(uuidDir) + "\\" + imageFilename);
+                int mothCount = execute("MothCount.exe " + string(uuidDir) + "\\" + imageFilename);
                 newFilename = to_string(time) + '_' + username;
                 json record;
-                record["username"] = username;
+                record["uploader"] = username;
                 record["time"] = time;
                 record["longtitude"] = longtitude;
                 record["latitude"] = latitude;
@@ -106,6 +142,42 @@ int main(int argc, char ** argv)
                 recordStream << record;
                 system(("move " + (uuidDir + "\\" + imageFilename) + ' ' + (RecordDir + "\\" + newFilename + ".jpg")).c_str());
                 response["mothCount"] = mothCount;
+            }
+            if (requestType == "refresh")
+            {
+                cout << username << " requested records. \n";
+                
+                list<string> filenames = listFiles(RecordDir);
+                response["records"] = json::array();
+                for (string & filename : filenames)
+                {
+                    string extName = getExtName(filename);
+                    if (extName == "json")
+                    {
+                        json record;
+                        ifstream recordStream(RecordDir + "\\" + filename);
+                        recordStream >> record;
+
+                        string uploader;
+                        long long int time = 0;
+                        double longtitude = 0, latitude = 0;
+                        int mothCount = 0;
+
+                        record["uploader"].get_to(uploader);
+                        record["time"].get_to(time);
+                        record["longtitude"].get_to(longtitude);
+                        record["latitude"].get_to(latitude);
+                        record["mothCount"].get_to(mothCount);
+
+                        response["records"].push_back(json::object({
+                            {"uploader", uploader},
+                            {"time", time},
+                            {"longtitude", longtitude},
+                            {"latitude", latitude},
+                            {"mothCount", mothCount}
+                        }));
+                    }
+                }
             }
         }
         else
@@ -120,7 +192,7 @@ int main(int argc, char ** argv)
         cout << username << " not found. \n";
     }
 
-    responseStream << response;
+    responseStream << response.dump(4);
     responseStream.close();
 
     return 0;

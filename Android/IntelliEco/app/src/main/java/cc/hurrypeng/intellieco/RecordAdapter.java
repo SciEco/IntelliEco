@@ -56,9 +56,13 @@ class RecordAdapter extends RecyclerView.Adapter {
 
         DecimalFormat df = new DecimalFormat("#.0000");
 
-        holder1.textViewMothCount.setText(String.valueOf(record.mothCount));
+        if (record.mothCount >= 0) holder1.textViewMothCount.setText(String.valueOf(record.mothCount));
+        else {
+            holder1.textViewMothCount.setTextColor(0xFFFF0000);
+            holder1.textViewMothCount.setText("!");
+        }
         holder1.textViewRecordInfo.setText("Uploader: " + record.uploader + "\n" +
-                                           " Time: " + timeString + '\n' +
+                                           "Time: " + timeString + '\n' +
                                            "Location: " + df.format(record.longtitude) + ", " + df.format(record.latitude));
     }
 
