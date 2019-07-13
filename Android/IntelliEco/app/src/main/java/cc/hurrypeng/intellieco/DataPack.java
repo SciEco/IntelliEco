@@ -1,5 +1,8 @@
 package cc.hurrypeng.intellieco;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class DataPack {
 
     static class Request {
@@ -27,5 +30,20 @@ class DataPack {
 
     static class UploadResponse extends Response {
         int mothCount;
+    }
+
+    static class RefreshRequest extends Request {
+    }
+
+    static class Record {
+        String uploader;
+        long time;
+        double longtitude;
+        double latitude;
+        int mothCount;
+    }
+
+    static class RefreshResponse extends Response {
+        List<Record> records;
     }
 }

@@ -8,4 +8,9 @@
     tools:context=".RecordActivity"
     tools:showIn="@layout/activity_record">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RecyclerViewRecords"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

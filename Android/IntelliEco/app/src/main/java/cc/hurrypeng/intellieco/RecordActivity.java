@@ -18,8 +18,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.io.File;
@@ -29,6 +33,10 @@ import java.io.IOException;
 public class RecordActivity extends AppCompatActivity {
 
     ProgressDialog progressDialog;
+
+    Toolbar toolbar;
+
+    RecyclerView recyclerView;
 
     FloatingActionButton fab;
 
@@ -47,14 +55,17 @@ public class RecordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         fab = findViewById(R.id.fab);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
         progressDialog.setCancelable(false);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        recyclerView = findViewById(R.id.RecyclerViewRecords);
 
         username = getIntent().getStringExtra("username");
         password = getIntent().getStringExtra("password");
@@ -87,6 +98,30 @@ public class RecordActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_TAKE_PHOTO);
             }
         });
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.ActionRefresh: {
+                        refresh();
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        refresh();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_record, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -102,7 +137,7 @@ public class RecordActivity extends AppCompatActivity {
                        if (request.exists()) request.delete();
                        request.createNewFile();
 
-                       final DataPack.UploadRequest uploadRequest = new DataPack.UploadRequest();
+                       DataPack.UploadRequest uploadRequest = new DataPack.UploadRequest();
                        uploadRequest.username = username;
                        uploadRequest.password = password;
                        uploadRequest.request = "upload";
@@ -131,6 +166,7 @@ public class RecordActivity extends AppCompatActivity {
                                    else {
                                        DataPack.UploadResponse uploadResponse = new Gson().fromJson(responseContent, DataPack.UploadResponse.class);
                                        AlertDialog.Builder dialog = new AlertDialog.Builder(RecordActivity.this);
+                                       refresh();
                                        dialog.setTitle("Analyse Result");
                                        dialog.setMessage(uploadResponse.mothCount + " moth(s) have been counted. ");
                                        dialog.setCancelable(true);
@@ -153,6 +189,55 @@ public class RecordActivity extends AppCompatActivity {
                     break;
                 }
             }
+        }
+    }
+
+    void refresh() {
+        progressDialog.setMessage("Refreshing record");
+        progressDialog.show();
+
+        try {
+            if (request.exists()) request.delete();
+            request.createNewFile();
+
+            final DataPack.RefreshRequest refreshRequest = new DataPack.RefreshRequest();
+            refreshRequest.username = username;
+            refreshRequest.password = password;
+            refreshRequest.request = "refresh";
+
+            FileOutputStream requestStream = new FileOutputStream(request);
+            requestStream.write(new Gson().toJson(refreshRequest).getBytes());
+            requestStream.close();
+
+            new FTPTask(response, request) {
+                @Override
+                void onPostExecute() {
+                    super.onPostExecute();
+                    progressDialog.dismiss();
+                    try {
+                        String responseContent = Util.getContent(response);
+                        if (responseContent.equals("")) {
+                            Snackbar.make(fab, "FTP connection failed! ", Snackbar.LENGTH_LONG).show();
+                        }
+                        DataPack.Response generalResponse = new Gson().fromJson(responseContent, DataPack.Response.class);
+                        if (generalResponse.authority.equals("unauthorised")) Snackbar.make(fab, "Unauthorised! ", Snackbar.LENGTH_LONG).show();
+                        {
+                            DataPack.RefreshResponse refreshResponse = new Gson().fromJson(responseContent, DataPack.RefreshResponse.class);
+                            RecordAdapter adapter = new RecordAdapter(refreshResponse.records);
+                            recyclerView.setAdapter(adapter);
+                        }
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.execute();
+        }
+        catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
