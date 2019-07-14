@@ -1,0 +1,6 @@
+﻿  MothCount.cpp
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\mothcount.cpp(17): warning C4244: “return”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\mothcount.cpp(50): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\mothcount.cpp(220): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\MothCount.exe
+  MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Debug\MothCount.pdb (Full PDB)
