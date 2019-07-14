@@ -251,7 +251,8 @@ public class RecordActivity extends AppCompatActivity {
                                     break;
                                 }
                             }
-                            spEdit.putLong("lastWarning" ,System.currentTimeMillis());
+                            lastWarning = System.currentTimeMillis();
+                            spEdit.putLong("lastWarning", lastWarning);
                             spEdit.apply();
                         }
                     }
