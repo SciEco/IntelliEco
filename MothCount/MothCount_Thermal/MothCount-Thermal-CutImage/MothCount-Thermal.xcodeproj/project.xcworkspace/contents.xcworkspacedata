@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:DrawContour.hpp">
+   </FileRef>
+   <FileRef
+      location = "group:../../GitRepo/IntelliEco/MothCount/MothCount/DrawContour.hpp">
+   </FileRef>
+   <FileRef
+      location = "self:">
+   </FileRef>
+</Workspace>
