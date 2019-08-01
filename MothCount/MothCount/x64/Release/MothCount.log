@@ -1,11 +1,19 @@
 ﻿  MothCount.cpp
-MothCount.cpp(17): warning C4244: “return”: 从“double”转换到“int”，可能丢失数据
-MothCount.cpp(50): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
-MothCount.cpp(238): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(140): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(141): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(155): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(157): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(159): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(167): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(169): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount\DrawContour.hpp(171): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+MothCount.cpp(19): warning C4244: “return”: 从“double”转换到“int”，可能丢失数据
+MothCount.cpp(52): warning C4267: “return”: 从“size_t”转换到“long”，可能丢失数据
+MothCount.cpp(252): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
   正在生成代码
-  1 of 388 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  9 of 520 functions ( 1.7%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount.exe
   MothCount.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount.pdb (Full PDB)

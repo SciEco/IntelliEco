@@ -1,44 +1,55 @@
-//#include <opencv2/imgproc.hpp>
+//
+//  main.cpp
+//  DrawContour
+//
+//  Created by william on 2019/7/6.
+//  Copyright © 2019 W-Hsu. All rights reserved.
+//
+
+#include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <iostream> //our best loved header
 #include <vector> //No matter
 #include <cmath> //abs()
 
+using namespace cv;
+using namespace std;
+
 const int LinePerEdge = 2;
 
 //Not defining global variables
 
-void testImage(const std::string WindowName, cv::Mat TestingImage, bool DestroyOrNot = true)
+void testImage(const string WindowName, Mat TestingImage, bool DestroyOrNot = true)
 {
     //Show an image on window "winname", then destroy the window when pressing a key.
-    cv::namedWindow(WindowName); //Create an window
-    cv::imshow(WindowName, TestingImage); //Show the image on the window
-    cv::waitKey(); //Waiting for pressing a key
+    namedWindow(WindowName); //Create an window
+    imshow(WindowName, TestingImage); //Show the image on the window
+    waitKey(); //Waiting for pressing a key
     
     if (DestroyOrNot)
-        cv::destroyWindow(WindowName); //Destroy the window
+        destroyWindow(WindowName); //Destroy the window
 }
 
-void FindBiggest(cv::Mat& src, cv::Mat& dst) //dst stores the countour lines
+void FindBiggest(Mat& src, Mat& dst) //dst stores the countour lines
 {
-    cv::Mat dst_middle;
+    Mat dst_middle;
     
-    cv::Canny( src, dst_middle, 100,150,5); //Edge detection using Canny:
+    Canny( src, dst_middle, 100,150,5); //Edge detection using Canny:
     
     //Dilate : The "Canny" function draws a rather thin line.
     //So dilate the lines to allow the "findContours" function to find it.
     //Much time to DE this BUG
-    cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1, 1));
-    cv::dilate(dst_middle, dst_middle, element);
+    Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(1, 1));
+    dilate(dst_middle, dst_middle, element);
     
     //Get and store the edge of the "white" board:
-    std::vector<std::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy; //The containers
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy; //The containers
     
-    findContours(dst_middle, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE); //Get the edges
+    findContours(dst_middle, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE); //Get the edges
     
     //Find the biggest area then output it into dst:
-    std::vector<std::vector<cv::Point> > polyContours(contours.size());
+    vector<vector<Point> > polyContours(contours.size());
     int maxArea = 0;
     for (int index = 0; index < contours.size(); index++)
     {
@@ -50,15 +61,15 @@ void FindBiggest(cv::Mat& src, cv::Mat& dst) //dst stores the countour lines
     
     //cout << endl << contourArea(contours[maxArea]) << endl; //Debugging command : print the size of the max area
     
-    dst = cv::Mat::zeros(src.size(), CV_8UC3);
-    drawContours(dst, polyContours, maxArea, cv::Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
+    dst = Mat::zeros(src.size(), CV_8UC3);
+    drawContours(dst, polyContours, maxArea, Scalar(0,0,255/*rand() & 255, rand() & 255, rand() & 255*/), 2);
 }
 
-void DetectAndDrawLines(cv::Mat& LineImage, cv::Mat& DstImage)
+void DetectAndDrawLines(Mat& LineImage, Mat& DstImage)
 {
     //To Detect lines:
-    std::vector<cv::Vec2f> lines; //Container which will hold the results of the 1st-time detection
-    cv::HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); //Runs the actual detection
+    vector<Vec2f> lines; //Container which will hold the results of the 1st-time detection
+    HoughLines(LineImage, lines, 1, CV_PI/180, 150,0 ,0); //Runs the actual detection
     //USAGE : dst1: Source image; lines: container of line's parameter(rho,theta); 1: precision of rho; CV/PI/180: precision of theta(rad).
     
     //To draw lines:
@@ -120,7 +131,7 @@ void DetectAndDrawLines(cv::Mat& LineImage, cv::Mat& DstImage)
         }
 
         
-        cv::Point pt1, pt2; //Using pt1 and pt2 as terminals to draw a segment.
+        Point pt1, pt2; //Using pt1 and pt2 as terminals to draw a segment.
         
         if (theta < 0.001 && theta > -0.001) //If the line is close to vertical
         {
@@ -163,16 +174,16 @@ void DetectAndDrawLines(cv::Mat& LineImage, cv::Mat& DstImage)
             }
         }
         
-        cv::line(DstImage, pt1, pt2, 255, 5, cv::LINE_8, 0);
+        line(DstImage, pt1, pt2, 255, 5, LINE_8, 0);
     }
 }
 
-void GetCountour(cv::Mat& InputImage)
+void GetCountour(Mat& InputImage)
 {
     //Define variables
-    cv::Mat SourceImg, LineImg;
-    cv::Mat& _SourceImg = SourceImg;
-    cv::Mat& _LineImg = LineImg;
+    Mat SourceImg, LineImg;
+    Mat& _SourceImg = SourceImg;
+    Mat& _LineImg = LineImg;
     
     //Load an image:
     SourceImg = InputImage;
@@ -180,7 +191,7 @@ void GetCountour(cv::Mat& InputImage)
     FindBiggest(_SourceImg, _LineImg);
     //IMPORTANT!! Must convert Polypic to GRAYSCALE to (draw lines by using Houghlines)
     //Takes me much time to DE this BUG
-    cv::cvtColor(LineImg, LineImg, CV_BGR2GRAY);
+    cvtColor(LineImg, LineImg, COLOR_BGR2GRAY);
     DetectAndDrawLines(_LineImg, InputImage);
 }
 
