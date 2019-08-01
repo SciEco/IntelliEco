@@ -93,7 +93,7 @@ int main(int argc, char ** argv)
 {
 	Mat image;
 	Mat &_image = image;
-	image = imread(R"(C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\moth\IR_01922.jpg)", IMREAD_GRAYSCALE); // Read the file
+	image = imread(R"(C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\moth\IR_01944.jpg)", IMREAD_GRAYSCALE); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
 		//cout << "Could not open or find the image" << std::endl;
@@ -123,10 +123,13 @@ int main(int argc, char ** argv)
 	auto get = [&image](int x, int y) {return image.at<uchar>(y, x); };
 
 	// Threshold
-	int greySum = 0;
-	for (int i = 0; i < col; i++) for (int j = 0; j < row; j++) greySum += get(i, j);
-	int greyMean = greySum / areaSum;
-	threshold(image, image, greyMean * 0.75, 255, 0);
+	//int greySum = 0;
+	//for (int i = 0; i < col; i++) for (int j = 0; j < row; j++) greySum += get(i, j);
+	//int greyMean = greySum / areaSum;
+	//threshold(image, image, greyMean * 0.75, 255, 0);
+
+	// Adaptive Threshold
+	adaptiveThreshold(image, image, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 55, 10);
 
 	testImage("Thresholded", image);
 
@@ -244,7 +247,7 @@ int main(int argc, char ** argv)
 	} // TODO: replace 7000 with another variable depending on areaSum
 
 	  // Calculate singleMothArea
-	int singleMothArea = boardArea * 3.80e-3;
+	int singleMothArea = boardArea * 3.00e-3;
 	int minMothArea = singleMothArea / 2;
 
 
