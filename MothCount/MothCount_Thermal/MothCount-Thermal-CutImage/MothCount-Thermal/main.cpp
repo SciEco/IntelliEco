@@ -9,7 +9,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-#include "DrawContour.hpp"
+#include "CutPicture.hpp"
 
 using namespace std;
 using namespace cv;
@@ -43,7 +43,10 @@ int main(int argc, const char * argv[]) {
     //line(image, <#Point pt1#>, <#Point pt2#>, <#const Scalar &color#>)
 //    Mat line(image);
 //
+    long beginTime = clock();
     CutImage(image, image);
+    long endTime = clock();
+    cerr << (endTime - beginTime)/1000  << "ms" << endl;
 //    int areaSum = col * row;
 //    auto get = [&image](int x, int y) { return image.at<uchar>(y, x); };
 //    auto get_TripleChannel = [&image](int x,int y) { return image.at<Vec3b>(y, x); };

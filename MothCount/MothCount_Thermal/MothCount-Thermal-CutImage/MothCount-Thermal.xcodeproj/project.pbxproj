@@ -213,7 +213,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3D0AEB5222F02C7100B6A05D /* DrawContour.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DrawContour.hpp; sourceTree = "<group>"; };
+		3D0AEB5222F02C7100B6A05D /* CutPicture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CutPicture.hpp; sourceTree = "<group>"; };
 		3D85533922EFE75D00533533 /* MothCount-Thermal */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "MothCount-Thermal"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D85533C22EFE75D00533533 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3D85534422EFE77600533533 /* libopencv_videoio.3.4.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_videoio.3.4.5.dylib; path = "../../../../../../usr/local/Cellar/opencv@3/3.4.5_2/lib/libopencv_videoio.3.4.5.dylib"; sourceTree = "<group>"; };
@@ -432,7 +432,6 @@
 		3D8554E822EFE77F00533533 /* load_config_py2.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = load_config_py2.py; sourceTree = "<group>"; };
 		3D8554E922EFE77F00533533 /* config-3.7.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "config-3.7.py"; sourceTree = "<group>"; };
 		3D8554EB22EFE77F00533533 /* opencv.pc */ = {isa = PBXFileReference; lastKnownFileType = text; path = opencv.pc; sourceTree = "<group>"; };
-		3DAD759722F2C014001D2436 /* DrawContour.old.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DrawContour.old.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -656,8 +655,7 @@
 		3D85533B22EFE75D00533533 /* MothCount-Thermal */ = {
 			isa = PBXGroup;
 			children = (
-				3DAD759722F2C014001D2436 /* DrawContour.old.hpp */,
-				3D0AEB5222F02C7100B6A05D /* DrawContour.hpp */,
+				3D0AEB5222F02C7100B6A05D /* CutPicture.hpp */,
 				3D85533C22EFE75D00533533 /* main.cpp */,
 			);
 			path = "MothCount-Thermal";
