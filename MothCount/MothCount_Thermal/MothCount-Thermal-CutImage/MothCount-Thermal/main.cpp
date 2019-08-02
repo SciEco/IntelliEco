@@ -16,8 +16,10 @@ using namespace cv;
 
 int main(int argc, const char * argv[]) {
     //Read an image
-    Mat image = imread("/Users/william/Pictures/MothCount-Thermal/10.png");
+    //freopen("/Users/william/out.txt", "w", stdout);
+    Mat image = imread("/Users/william/Pictures/MothCount-Thermal/11.png");
     //BGR at default...
+    testImage("Source", image);
     if (image.empty()) {
         cerr << "No image input!" << endl;
         return -2;
@@ -37,12 +39,11 @@ int main(int argc, const char * argv[]) {
     }
     
 //    FindBiggest(image, image);
-    cutPic(image, image);
     
     //line(image, <#Point pt1#>, <#Point pt2#>, <#const Scalar &color#>)
 //    Mat line(image);
 //
-//    int col = image.cols, row = image.rows;
+    CutImage(image, image);
 //    int areaSum = col * row;
 //    auto get = [&image](int x, int y) { return image.at<uchar>(y, x); };
 //    auto get_TripleChannel = [&image](int x,int y) { return image.at<Vec3b>(y, x); };
@@ -56,6 +57,7 @@ int main(int argc, const char * argv[]) {
     
 //    testImage("shabby", image, true);
 //    testImage("shibby", line);
+    testImage("shabby res", image);
     
     return 0;
 }
