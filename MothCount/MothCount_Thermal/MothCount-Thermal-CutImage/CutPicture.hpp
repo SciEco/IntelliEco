@@ -17,16 +17,14 @@ void testImage(const std::string WindowName,\
         cv::destroyWindow(WindowName); //Destroy the window
 }
 
-void SingleCut(cv::Mat & ToBeCut,\
+void SingleCut_col(cv::Mat & ToBeCut,\
             cv::Mat & Destination,\
             int thresholdCol_multiple=15,\
-            int thresholdRow_multiple=15,\
-            int thresholdCol_mono=50,\
-            int thresholdRow_mono=50)
+            int thresholdCol_mono=50)
 {
     //testImage("shabby 0", ToBeCut);
     std::list<int>memcol;
-    std::list<int>memrow;
+    
     int col=ToBeCut.cols, row=ToBeCut.rows;
     
     for (int i_cols = 0 ; i_cols < col-5 ; i_cols+=4)
@@ -54,7 +52,7 @@ void SingleCut(cv::Mat & ToBeCut,\
             memcol.push_back(i_cols);
             //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
             //cv::line(ToBeCut, cv::Point(i_cols,0), cv::Point(i_cols,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
-            i_cols += 7;
+            //i_cols += 4;
         }
         else if ((avg_b >=thresholdCol_multiple && avg_g >= thresholdCol_multiple) ||\
                 (avg_g >= thresholdCol_multiple && avg_r >= thresholdCol_multiple) ||\
@@ -63,10 +61,42 @@ void SingleCut(cv::Mat & ToBeCut,\
             memcol.push_back(i_cols);
             //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
             //cv::line(ToBeCut, cv::Point(i_cols,0), cv::Point(i_cols,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
-            i_cols += 7;
+            //i_cols += 4;
         }
         
     }
+    
+//    testImage("shabby", ToBeCut);
+    
+    //See if 0 or "col"/"row" is included
+    if (memcol.size()>=2)
+    {
+        if (memcol.front() == 0)
+            memcol.pop_front();
+        if (memcol.back() == col)
+            memcol.pop_back();
+    }
+    
+    //See if found two egdes
+
+    cv::Rect m_select = cv::Rect(memcol.front(), 0, memcol.back()-memcol.front(), row);
+
+    //testImage("shabby 0", ToBeCut);
+
+    Destination = ToBeCut(m_select);
+
+//    testImage("shabby", Destination);
+//    std::cout << std::endl;
+}
+
+void SingleCut_row(cv::Mat & ToBeCut,\
+                   cv::Mat & Destination,\
+                   int thresholdRow_multiple=15,\
+                   int thresholdRow_mono=50)
+{
+    std::list<int>memrow;
+    
+    int col=ToBeCut.cols, row=ToBeCut.rows;
     
     for (int i_rows = 0 ; i_rows < row-5 ; i_rows+=4)
     {
@@ -89,30 +119,19 @@ void SingleCut(cv::Mat & ToBeCut,\
         
         //std::cout << avg_b << " " << avg_g << " " << avg_r << std::endl;
         if (avg_b >= thresholdRow_mono || avg_g >= thresholdRow_mono || avg_r >= thresholdRow_mono)
-         {
-             memrow.push_back(i_rows);
-             //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
-             //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
-         }
-         else if ((avg_b >=thresholdRow_multiple && avg_g >= thresholdRow_multiple) ||\
-                    (avg_g >= thresholdRow_multiple && avg_r >= thresholdRow_multiple) ||\
-                    (avg_b >= thresholdRow_multiple && avg_r >= thresholdRow_multiple))
-         {
-             memrow.push_back(i_rows);
-             //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
-             //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
-         }
-        
-    }
-//    testImage("shabby", ToBeCut);
-    
-    //See if 0 or "col"/"row" is included
-    if (memcol.size()>=2)
-    {
-        if (memcol.front() == 0)
-            memcol.pop_front();
-        if (memcol.back() == col)
-            memcol.pop_back();
+        {
+            memrow.push_back(i_rows);
+            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
+            //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
+        }
+        else if ((avg_b >=thresholdRow_multiple && avg_g >= thresholdRow_multiple) ||\
+                 (avg_g >= thresholdRow_multiple && avg_r >= thresholdRow_multiple) ||\
+                 (avg_b >= thresholdRow_multiple && avg_r >= thresholdRow_multiple))
+        {
+            memrow.push_back(i_rows);
+            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
+            //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
+        }
     }
     
     if (memrow.size()>=2)
@@ -123,19 +142,6 @@ void SingleCut(cv::Mat & ToBeCut,\
             memrow.pop_back();
     }
     
-    //See if found two egdes
-    if (memcol.empty())
-    {
-        memcol.push_back(0);
-        memcol.push_back(col);
-    }
-    else if (memcol.size() == 1)
-    {
-        memcol.pop_back();
-        memcol.push_back(0);
-        memcol.push_back(col);
-    }
-
     if (memrow.empty())
     {
         memrow.push_back(0);
@@ -145,64 +151,42 @@ void SingleCut(cv::Mat & ToBeCut,\
     {
         memrow.pop_back();
         memrow.push_back(0);
-        memrow.push_back(col);
+        memrow.push_back(row);
     }
-
-    cv::Rect m_select = cv::Rect(memcol.front(), memrow.front(), memcol.back()-memcol.front(), memrow.back()-memrow.front());
-
-    //testImage("shabby 0", ToBeCut);
-
+    
+    cv::Rect m_select = cv::Rect(0, memrow.front(), col, memrow.back()-memrow.front());
     Destination = ToBeCut(m_select);
-
-//    testImage("shabby", Destination);
-//    std::cout << std::endl;
 }
 
-void CutImage(const cv::Mat & Source, cv::Mat & Destination)
+void CutImage(const cv::Mat & Source,\
+              cv::Mat & Destination)
 {
     Destination = Source;
     // Define controlling variables
     bool colContinue = true, rowContinue = true;
-    int CutCount = 0;
+    int CutCount = 0, colCut=0, rowCut=0;
     // Basic metadata of the image
     int col = Destination.cols, row = Destination.rows;
-    int lastCol = col, lastRow = row;
     // Base Threshold definition
-    int mulRow=15,monRow=50, mulCol=15, monCol=50;
+    int mulRow=15,monRow=35, mulCol=10, monCol=25;
     // Hold the result of last cutting
     // To recover when a ~~failed~~ cut occurs
     cv::Mat Lastime(Destination);
     // Do the cutting job
     // Stop when cut to 3/4 size
-    while ((Destination.cols >= col * 3.0 / 5 && Destination.rows >= row * 3.0 / 5)\
+    while ((Destination.cols >= col * 3.0 / 4 || Destination.rows >= row * 3.0 / 4)\
            &&\
            (colContinue || rowContinue)\
            &&\
            (CutCount <= 30))
     {
         // Do a single cutting
-        SingleCut(Destination, Destination, mulCol, mulRow, monCol, monRow);
-        
-        // To detect a bad cut
-        if (Lastime.cols >= Destination.cols * 2)
-        {
-            Destination = Lastime;
-            colContinue = false;
-            mulCol++;
-            monCol++;
-        }
-        if (Lastime.rows >= Destination.rows * 2)
-        {
-            Destination = Lastime;
-            rowContinue = false;
-            mulRow++;
-            monRow++;
-        }
-        
         // When no cutting is done, reduce the threshold
         if (colContinue)
         {
-            if (lastCol == Destination.cols)
+            SingleCut_col(Destination, Destination, mulCol, monCol);
+            colCut++;
+            if (Lastime.cols == Destination.cols)
             {
                 mulCol--;
                 monCol--;
@@ -212,18 +196,35 @@ void CutImage(const cv::Mat & Source, cv::Mat & Destination)
         
         if (rowContinue)
         {
-            if (lastRow == Destination.rows)
+            SingleCut_row(Destination, Destination, mulRow, monRow);
+            rowCut++;
+            if (Lastime.rows == Destination.rows)
             {
                 mulRow--;
                 monRow--;
             }
             else;
         }
+        // To detect a bad cut
+        if (Destination.cols <= col * 0.40)
+        {
+            Destination = Lastime;
+            colContinue = false;
+            mulCol = 255;
+            monCol = 255;
+        }
+        
+        if (Destination.rows <= row * 0.90)
+        {
+            Destination = Lastime;
+            rowContinue = false;
+            mulRow = 255;
+            monRow = 255;
+        }
         
         // Update Last time
         Lastime = Destination;
-        lastCol = Destination.cols;
-        lastRow = Destination.rows;
         CutCount++;
     }
+    std::cout << "CutTimes:" << CutCount << " " << colCut << " " << rowCut << " ";
 }

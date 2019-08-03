@@ -17,7 +17,12 @@ using namespace cv;
 int main(int argc, const char * argv[]) {
     //Read an image
     //freopen("/Users/william/out.txt", "w", stdout);
-    Mat image = imread("/Users/william/Pictures/MothCount-Thermal/11.png");
+    for (int ii=49 ; ii<= 56 ; ii++)
+    {
+    String s = "/Users/william/Pictures/MothCount-Thermal/";
+        s+= char(ii);
+        s+= ".png";
+        Mat image = imread(s);
     //BGR at default...
     testImage("Source", image);
     if (image.empty()) {
@@ -61,6 +66,6 @@ int main(int argc, const char * argv[]) {
 //    testImage("shabby", image, true);
 //    testImage("shibby", line);
     testImage("shabby res", image);
-    
+    }
     return 0;
 }
