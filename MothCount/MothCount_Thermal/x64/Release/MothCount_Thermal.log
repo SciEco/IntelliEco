@@ -1,19 +1,10 @@
 ﻿  MothCount_Thermal.cpp
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(140): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(141): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(155): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(157): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(159): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(167): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(169): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\haora\documents\visual studio 2015\projects\intellieco\mothcount_thermal\DrawContour.hpp(171): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
 MothCount_Thermal.cpp(19): warning C4244: “return”: 从“double”转换到“int”，可能丢失数据
 MothCount_Thermal.cpp(52): warning C4267: “return”: 从“size_t”转换到“long”，可能丢失数据
-MothCount_Thermal.cpp(250): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
   正在生成代码
-  1 of 386 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  1 of 385 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  MothCount_Thermal.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount_Thermal.exe
-  MothCount_Thermal.vcxproj -> C:\Users\haora\documents\visual studio 2015\Projects\IntelliEco\x64\Release\MothCount_Thermal.pdb (Full PDB)
+  MothCount_Thermal.vcxproj -> C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\x64\Release\MothCount_Thermal.exe
+  MothCount_Thermal.vcxproj -> C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\x64\Release\MothCount_Thermal.pdb (Full PDB)

@@ -155,7 +155,7 @@
     <ClCompile Include="MothCount_Thermal.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DrawContour.hpp" />
+    <ClInclude Include="..\..\..\..\GitHub\SciEco\IntelliEco\MothCount\MothCount_Thermal\CutPicture.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

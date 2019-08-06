@@ -7,7 +7,7 @@
 #include <queue>
 #include <deque>
 
-#include "DrawContour.hpp"
+#include "CutPicture.hpp"
 
 using namespace cv;
 using namespace std;
@@ -201,10 +201,10 @@ int main(int argc, char ** argv)
 	testImage("Erased", image);
 
 	// Erode
-	element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(3, 3));
-	erode(image, image, element);
+	//element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(3, 3));
+	//erode(image, image, element);
 
-	testImage("Eroded", image);
+	//testImage("Eroded", image);
 
 	// Block search 2
 	blockSearch();
@@ -238,6 +238,7 @@ int main(int argc, char ** argv)
 	}
 	if (maximumWhite < 50000) return -1;
 
+	/*
 	// Calculate boardArea
 	int boardArea = 0;
 	for (Block & block : block_list)
@@ -245,25 +246,33 @@ int main(int argc, char ** argv)
 		if ((block.area() < 7000 && !block.white) || (block.area() >= 7000 && block.white))
 			boardArea += block.area();
 	} // TODO: replace 7000 with another variable depending on areaSum
+	
 
 	  // Calculate singleMothArea
 	int singleMothArea = boardArea * 3.00e-3;
 	int minMothArea = singleMothArea / 2;
+	*/
 
 
 	// 632.61 per moth with board area being 427280
 	// moth/board = 1.60e-3
 	// //cout << mothArea / 65.0 << ' ' << boardArea << '\n';
-	int mothArea = 0;
+	int mothArea = 0, approxMothCount = 0;
 	for (Block & block : block_list)
-		if (!block.white && block.area() < 7000) mothArea += min(block.area(), 1000L);
+		if (!block.white && block.area() < 7000) mothArea += block.area(), approxMothCount++;
+	int singleMothArea = mothArea / approxMothCount;
 
 	//cout << "board area: " << boardArea << '\n';
 	//cout << "single moth area: " << singleMothArea << '\n';
 	//cout << "total moth area: " << mothArea << '\n';
-	cout << mothArea / singleMothArea << " moth(s) counted. ";
+
+	int mothCount = 0;
+	for (Block & block : block_list)
+		if (!block.white && block.area() >= singleMothArea / 2) mothCount++;
+
+	cout << mothCount << " moth(s) counted. ";
 
 	testImage("Result", image); // Show our image inside it.
 
-	return (mothArea / singleMothArea);
+	return mothCount;
 }

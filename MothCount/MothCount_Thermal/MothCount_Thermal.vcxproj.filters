@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DrawContour.hpp">
+    <ClInclude Include="..\..\..\..\GitHub\SciEco\IntelliEco\MothCount\MothCount_Thermal\CutPicture.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
