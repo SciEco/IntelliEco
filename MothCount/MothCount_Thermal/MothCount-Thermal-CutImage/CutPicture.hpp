@@ -46,11 +46,11 @@ void SingleCut_col(cv::Mat & ToBeCut,\
         avg_g = std::abs(avg_g / row);
         avg_r = std::abs(avg_r / row);
         
-        //std::cout << avg_b << " " << avg_g << " " << avg_r << std::endl;
+        //std::cerr << avg_b << " " << avg_g << " " << avg_r << std::endl;
         if (avg_b >= thresholdCol_mono || avg_g >= thresholdCol_mono || avg_r >= thresholdCol_mono)
         {
             memcol.push_back(i_cols);
-            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
+            //std::cerr << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
             //cv::line(ToBeCut, cv::Point(i_cols,0), cv::Point(i_cols,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
             //i_cols += 4;
         }
@@ -59,7 +59,7 @@ void SingleCut_col(cv::Mat & ToBeCut,\
                 (avg_b >= thresholdCol_multiple && avg_r >= thresholdCol_multiple  ))
         {
             memcol.push_back(i_cols);
-            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
+            //std::cerr << avg_b << "\t" << avg_g << "\t" << avg_r << "\tcolumn:" << i_cols << std::endl;
             //cv::line(ToBeCut, cv::Point(i_cols,0), cv::Point(i_cols,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
             //i_cols += 4;
         }
@@ -86,7 +86,7 @@ void SingleCut_col(cv::Mat & ToBeCut,\
     Destination = ToBeCut(m_select);
 
 //    testImage("shabby", Destination);
-//    std::cout << std::endl;
+//    std::cerr << std::endl;
 }
 
 void SingleCut_row(cv::Mat & ToBeCut,\
@@ -117,11 +117,11 @@ void SingleCut_row(cv::Mat & ToBeCut,\
         avg_g = std::abs(avg_g / col);
         avg_r = std::abs(avg_r / col);
         
-        //std::cout << avg_b << " " << avg_g << " " << avg_r << std::endl;
+        //std::cerr << avg_b << " " << avg_g << " " << avg_r << std::endl;
         if (avg_b >= thresholdRow_mono || avg_g >= thresholdRow_mono || avg_r >= thresholdRow_mono)
         {
             memrow.push_back(i_rows);
-            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
+            //std::cerr << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
             //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
         }
         else if ((avg_b >=thresholdRow_multiple && avg_g >= thresholdRow_multiple) ||\
@@ -129,7 +129,7 @@ void SingleCut_row(cv::Mat & ToBeCut,\
                  (avg_b >= thresholdRow_multiple && avg_r >= thresholdRow_multiple))
         {
             memrow.push_back(i_rows);
-            //std::cout << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
+            //std::cerr << avg_b << "\t" << avg_g << "\t" << avg_r << "\trow:" << i_rows << std::endl;
             //cv::line(ToBeCut, cv::Point(i_rows,0), cv::Point(i_rows,row), cvScalar(255,255,255), 5, cv::LINE_8, 0);
         }
     }
@@ -164,55 +164,37 @@ void CutImage(const cv::Mat & Source,\
     Destination = Source;
     // Define controlling variables
     bool colContinue = true, rowContinue = true;
-    int CutCount = 0, colCut=0, rowCut=0;
+    int CutCount_Row=0, CutCount_Col=0;
     // Basic metadata of the image
     int col = Destination.cols, row = Destination.rows;
     // Base Threshold definition
-    int mulRow=15,monRow=35, mulCol=10, monCol=25;
+    int mulRow=15,monRow=35, mulCol=10, monCol=20;
     // Hold the result of last cutting
     // To recover when a ~~failed~~ cut occurs
     cv::Mat Lastime(Destination);
     // Do the cutting job
     // Stop when cut to 3/4 size
-    while ((Destination.cols >= col * 3.0 / 4 || Destination.rows >= row * 3.0 / 4)\
+    
+    // Cut ROWs
+    while ((Destination.rows >= row * 3.0 / 4)\
            &&\
-           (colContinue || rowContinue)\
+           (rowContinue)\
            &&\
-           (CutCount <= 30))
+           (CutCount_Row <= 30))
     {
-        // Do a single cutting
+        // Do a single cutting in rows
         // When no cutting is done, reduce the threshold
-        if (colContinue)
-        {
-            SingleCut_col(Destination, Destination, mulCol, monCol);
-            colCut++;
-            if (Lastime.cols == Destination.cols)
-            {
-                mulCol--;
-                monCol--;
-            }
-            else;
-        }
         
-        if (rowContinue)
+        SingleCut_row(Destination, Destination, mulRow, monRow);
+        if (Lastime.rows == Destination.rows)
         {
-            SingleCut_row(Destination, Destination, mulRow, monRow);
-            rowCut++;
-            if (Lastime.rows == Destination.rows)
-            {
-                mulRow--;
-                monRow--;
-            }
-            else;
+            mulRow--;
+            monRow--;
         }
+        else;
+        //        testImage("rows", Destination);
         // To detect a bad cut
-        if (Destination.cols <= col * 0.40)
-        {
-            Destination = Lastime;
-            colContinue = false;
-            mulCol = 255;
-            monCol = 255;
-        }
+        
         
         if (Destination.rows <= row * 0.90)
         {
@@ -224,7 +206,40 @@ void CutImage(const cv::Mat & Source,\
         
         // Update Last time
         Lastime = Destination;
-        CutCount++;
+        CutCount_Row++;
     }
-    std::cout << "CutTimes:" << CutCount << " " << colCut << " " << rowCut << " ";
+    
+    while (Destination.cols >= col * 3.0 / 4\
+           &&\
+           colContinue\
+           &&\
+           (CutCount_Col <= 30))
+    {
+        // Do a single cutting in rows
+        // When no cutting is done, reduce the threshold
+        SingleCut_col(Destination, Destination, mulCol, monCol);
+        if (Lastime.cols == Destination.cols)
+        {
+            mulCol--;
+            monCol--;
+        }
+        else;
+        
+        // To Detect a bad cut
+        if (Destination.cols <= col * 0.40)
+        {
+            Destination = Lastime;
+            colContinue = false;
+            mulCol = 255;
+            monCol = 255;
+            std::cerr << "False ";
+        }
+        
+        // Update Last time
+        Lastime = Destination;
+        CutCount_Col++;
+    }
+
+    
+    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";//<< std::endl;
 }
