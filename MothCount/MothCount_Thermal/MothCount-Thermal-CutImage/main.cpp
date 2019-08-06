@@ -24,7 +24,6 @@ int main(int argc, const char * argv[]) {
         s+= ".png";
         Mat image = imread(s);
     //BGR at default...
-    testImage("Source", image);
     if (image.empty()) {
         cerr << "No image input!" << endl;
         return -2;

@@ -110,7 +110,6 @@ void SingleCut_row(cv::Mat & ToBeCut,\
             avg_g -= ToBeCut.at<cv::Vec3b>(i_rows, i_cols+4)[1];
             avg_r += ToBeCut.at<cv::Vec3b>(i_rows, i_cols)[2];
             avg_r -= ToBeCut.at<cv::Vec3b>(i_rows, i_cols+4)[2];
-            
         }
         
         avg_b = std::abs(avg_b / col);
@@ -162,13 +161,14 @@ void CutImage(const cv::Mat & Source,\
               cv::Mat & Destination)
 {
     Destination = Source;
+    testImage("Shabby src", Source);
     // Define controlling variables
     bool colContinue = true, rowContinue = true;
     int CutCount_Row=0, CutCount_Col=0;
     // Basic metadata of the image
     int col = Destination.cols, row = Destination.rows;
     // Base Threshold definition
-    int mulRow=15,monRow=35, mulCol=10, monCol=20;
+    int mulRow=15,monRow=35, mulCol=10, monCol=15;
     // Hold the result of last cutting
     // To recover when a ~~failed~~ cut occurs
     cv::Mat Lastime(Destination);
@@ -180,7 +180,7 @@ void CutImage(const cv::Mat & Source,\
            &&\
            (rowContinue)\
            &&\
-           (CutCount_Row <= 30))
+           (CutCount_Row <= 200))
     {
         // Do a single cutting in rows
         // When no cutting is done, reduce the threshold
@@ -196,7 +196,7 @@ void CutImage(const cv::Mat & Source,\
         // To detect a bad cut
         
         
-        if (Destination.rows <= row * 0.90)
+        if (Destination.rows <= row * 0.83)
         {
             Destination = Lastime;
             rowContinue = false;
@@ -209,30 +209,35 @@ void CutImage(const cv::Mat & Source,\
         CutCount_Row++;
     }
     
-    while (Destination.cols >= col * 3.0 / 4\
+    // Pre-Process
+    cv::Rect m_select = cv::Rect(Destination.cols*0.20, 0, Destination.cols*0.70, Destination.rows);
+    Destination = Destination(m_select);
+    Lastime = Destination;
+    testImage("Shabby Middle", Destination);
+    
+    while (Destination.cols >= col * 0.48\
            &&\
            colContinue\
            &&\
-           (CutCount_Col <= 30))
+           (CutCount_Col <= 50))
     {
         // Do a single cutting in rows
         // When no cutting is done, reduce the threshold
         SingleCut_col(Destination, Destination, mulCol, monCol);
         if (Lastime.cols == Destination.cols)
         {
-            mulCol--;
-            monCol--;
+            mulCol++;
+            monCol++;
         }
         else;
         
         // To Detect a bad cut
-        if (Destination.cols <= col * 0.40)
+        if (Destination.cols <= col * 0.30)
         {
             Destination = Lastime;
             colContinue = false;
             mulCol = 255;
             monCol = 255;
-            std::cerr << "False ";
         }
         
         // Update Last time
@@ -241,5 +246,5 @@ void CutImage(const cv::Mat & Source,\
     }
 
     
-    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";//<< std::endl;
+    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";
 }
