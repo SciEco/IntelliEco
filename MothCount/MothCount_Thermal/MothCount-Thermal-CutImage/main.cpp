@@ -17,7 +17,7 @@ using namespace cv;
 int main(int argc, const char * argv[]) {
     //Read an image
     //freopen("/Users/william/out.txt", "w", stdout);
-    for (int ii=49 ; ii<= 56 ; ii++)
+    for (int ii=49 ; ii<= 57 ; ii++)
     {
     String s = "/Users/william/Pictures/MothCount-Thermal/";
         s+= char(ii);

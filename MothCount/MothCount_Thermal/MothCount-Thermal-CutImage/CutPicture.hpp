@@ -209,8 +209,8 @@ void CutImage(const cv::Mat & Source,\
         CutCount_Row++;
     }
     
-    // Pre-Process
-    cv::Rect m_select = cv::Rect(Destination.cols*0.20, 0, Destination.cols*0.70, Destination.rows);
+    // Column pre-conditioning
+    cv::Rect m_select = cv::Rect(Destination.cols*0.20, 0, Destination.cols*0.60, Destination.rows);
     Destination = Destination(m_select);
     Lastime = Destination;
     testImage("Shabby Middle", Destination);
