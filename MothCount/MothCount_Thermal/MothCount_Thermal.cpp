@@ -222,11 +222,6 @@ int main(int argc, char ** argv)
 	// Block search 2
 	blockSearch();
 
-	// Print block info
-	block_list.sort();
-	for (Block & block : block_list)
-		cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
-
 	// Erase all tiny blocks and small white blocks
 	for (Block & block : block_list)
 	{
@@ -240,8 +235,13 @@ int main(int argc, char ** argv)
 	testImage("Erased", image);
 
 	// Block search 3
-	blockSearch();
-
+    blockSearch();
+    
+    // Print block info
+    block_list.sort();
+    for (Block & block : block_list)
+        cout << (block.white ? "white" : "black") << "\tarea: " << block.area() << "\tCoG: " << block.getCog().x << ' ' << block.getCog().y << "\tradius: " << block.getR() << "\tAPR2: " << block.getAPR2() << '\n';
+    
 	//See if the board exists
 	long maximumWhite = 0;
 	for (Block & block : block_list)
