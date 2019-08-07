@@ -211,5 +211,5 @@ void CutImage(const cv::Mat & Source,\
     }
 
     
-    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";
+    //std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";
 }

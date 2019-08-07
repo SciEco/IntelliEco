@@ -155,7 +155,7 @@
     <ClCompile Include="MothCount_Thermal.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MothCount-Thermal-CutImage\CutPicture.hpp" />
+    <ClInclude Include="MothCount-Thermal-CutImage\CutPicture_Gray.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

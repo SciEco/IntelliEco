@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MothCount-Thermal-CutImage\CutPicture.hpp">
+    <ClInclude Include="MothCount-Thermal-CutImage\CutPicture_Gray.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
