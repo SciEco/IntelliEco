@@ -198,7 +198,7 @@ void CutImage(const cv::Mat & Source,\
         else;
         
         // To Detect a bad cut
-        if (Destination.cols <= col * 0.20)
+        if (Destination.cols <= col * 0.30)
         {
             Destination = Lastime;
             colContinue = false;
