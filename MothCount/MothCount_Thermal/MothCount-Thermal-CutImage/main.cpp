@@ -64,7 +64,7 @@ int main(int argc, const char * argv[]) {
     
 //    testImage("shabby", image, true);
 //    testImage("shibby", line);
-    testImage("shabby res", image);
+//    testImage("shabby res", image);
     }
     return 0;
 }

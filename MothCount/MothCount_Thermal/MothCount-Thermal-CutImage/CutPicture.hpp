@@ -161,7 +161,7 @@ void CutImage(const cv::Mat & Source,\
               cv::Mat & Destination)
 {
     Destination = Source;
-    testImage("Shabby src", Source);
+    //testImage("Shabby src", Source);
     // Define controlling variables
     bool colContinue = true, rowContinue = true;
     int CutCount_Row=0, CutCount_Col=0;
@@ -213,7 +213,7 @@ void CutImage(const cv::Mat & Source,\
     cv::Rect m_select = cv::Rect(Destination.cols*0.20, 0, Destination.cols*0.60, Destination.rows);
     Destination = Destination(m_select);
     Lastime = Destination;
-    testImage("Shabby Middle", Destination);
+//    testImage("Shabby Middle", Destination);
     
     while (Destination.cols >= col * 0.48\
            &&\
@@ -246,5 +246,5 @@ void CutImage(const cv::Mat & Source,\
     }
 
     
-    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";
+//    std::cerr << "CutTimes:" << CutCount_Row << " " << CutCount_Col << " ";
 }
