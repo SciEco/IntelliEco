@@ -7,7 +7,7 @@
 #include <queue>
 #include <deque>
 
-#include "CutPicture.hpp"
+#include "MothCount-Thermal-CutImage/CutPicture.hpp"
 
 using namespace cv;
 using namespace std;
@@ -92,8 +92,7 @@ bool operator<(const Block & a, const Block & b)
 int main(int argc, char ** argv)
 {
 	Mat image;
-	Mat &_image = image;
-	image = imread(R"(C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\moth\IR_01944.jpg)", IMREAD_GRAYSCALE); // Read the file
+	image = imread(R"(C:\Users\haora\Documents\Visual Studio 2015\Projects\IntelliEco\moth\ThermalSrc\IR_01920.jpg)"); // Read the file
 	if (image.empty()) // Check for invalid input
 	{
 		//cout << "Could not open or find the image" << std::endl;
@@ -104,17 +103,20 @@ int main(int argc, char ** argv)
 
 	testImage("Source", image);
 
+	// Compress
+	while (image.cols >= 2000)
+	{
+		pyrDown(image, image, Size(image.cols / 2, image.rows / 2));
+	}
+
+	CutImage(image, image);
+	testImage("cut", image);
+
 	// If oriented potrait, then transpose it landscape
 	if (image.cols < image.rows)
 	{
 		transpose(image, image);
 		flip(image, image, 1);
-	}
-
-	// Compress
-	while (image.cols >= 2000)
-	{
-		pyrDown(image, image, Size(image.cols / 2, image.rows / 2));
 	}
 
 	// Calculate basic params
@@ -127,6 +129,17 @@ int main(int argc, char ** argv)
 	//for (int i = 0; i < col; i++) for (int j = 0; j < row; j++) greySum += get(i, j);
 	//int greyMean = greySum / areaSum;
 	//threshold(image, image, greyMean * 0.75, 255, 0);
+
+	cvtColor(image, image, COLOR_BGR2HSV);
+	{
+		Mat temp(image.rows, image.cols, CV_8UC1);
+		for (int i = 0; i < image.cols; i++) for (int j = 0; j < image.rows; j++)
+		{
+			temp.at<uchar>(j, i) = get(3 * i, j);
+		}
+		image = temp;
+	}
+	testImage("de-colour", image);
 
 	// Adaptive Threshold
 	adaptiveThreshold(image, image, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 55, 10);

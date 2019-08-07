@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\GitHub\SciEco\IntelliEco\MothCount\MothCount_Thermal\CutPicture.hpp">
+    <ClInclude Include="MothCount-Thermal-CutImage\CutPicture.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
