@@ -94,7 +94,7 @@ bool operator<(const Block & a, const Block & b)
 int main(int argc, char ** argv)
 {
 	string filename;
-	if (argc > 1) filename = argv[0];
+	if (argc > 1) filename = argv[1];
 	else
 	{
 		cout << "Enter the path of the image to be tested: ";
@@ -300,6 +300,6 @@ int main(int argc, char ** argv)
 
 	//testImage("Result", image); // Show our image inside it.
 
-	return 0;
+	return mothCount;
 	
 }
